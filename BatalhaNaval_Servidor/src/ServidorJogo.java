@@ -27,7 +27,7 @@ public class ServidorJogo {
 			System.out.println("Aguardando recebimento de pacotes...");
 			DatagramPacket packet = IO.getPacket();
 			if (packet != null) {
-				ProccessInput(packet);
+				processaInput(packet);
 			}
 		}
 	}
@@ -36,17 +36,17 @@ public class ServidorJogo {
 	 * 
 	 * @param pacote
 	 */
-	public void ProccessInput(DatagramPacket packet) {
+	public void processaInput(DatagramPacket packet) {
 		String packetMessage = new String(packet.getData());
 		String name = packetMessage.substring(0, packetMessage.indexOf(':'));
 		String message = packetMessage.substring(packetMessage.indexOf(':') + 1, packetMessage.indexOf(0));
-		int PlayerIndex = GetIndex(packet.getAddress(), name);
+		int PlayerIndex = getIndex(packet.getAddress(), name);
 		String result = "";
 
 		// Em caso de jogador não registrado no servidor, verifica e cria-se jogador
 		if (PlayerIndex == -1) {
 			if (message.equals("join")) {
-				PlayerIndex = CreatePlayerindex(packet.getAddress(), name, packet.getPort());
+				PlayerIndex = criarIndexPlayer(packet.getAddress(), name, packet.getPort());
 				if (PlayerIndex == -1) {
 					result = "bad:Servidor cheio";
 				} else {
@@ -61,7 +61,7 @@ public class ServidorJogo {
 
 		} else { // Caso um jogador saia
 			if (message.equals("quit") && PlayerIndex != -1) {
-				RemovePlayerindex(PlayerIndex);
+				removeIndexPlayer(PlayerIndex);
 				activeGame = false;
 				shipIDs = new boolean[] { false, false };
 				IO.sendPacket(new DatagramPacket(result.getBytes(), result.getBytes().length, packet.getAddress(),
@@ -102,7 +102,7 @@ public class ServidorJogo {
 	 * @param porta
 	 * @return
 	 */
-	private int CreatePlayerindex(InetAddress IP, String name, int port) {
+	private int criarIndexPlayer(InetAddress IP, String name, int port) {
 		for (int i = 0; i < IPAddress.length; i++) {
 			if (IPAddress[i] == null) {
 				IPAddress[i] = IP;
@@ -120,7 +120,7 @@ public class ServidorJogo {
 	 * 
 	 * @param index
 	 */
-	private void RemovePlayerindex(int Index) {
+	private void removeIndexPlayer(int Index) {
 		if (Index != -1) {
 			IPAddress[Index] = null;
 			names[Index] = null;
@@ -135,7 +135,7 @@ public class ServidorJogo {
 	 * @param nome
 	 * @return
 	 */
-	private int GetIndex(InetAddress IP, String name) {
+	private int getIndex(InetAddress IP, String name) {
 		for (int i = 0; i < IPAddress.length; i++) {
 			if (IPAddress[i] != null && IPAddress[i].equals(IP) && name.equals(names[i]))
 				return i;
@@ -193,18 +193,18 @@ public class ServidorJogo {
 				out = "error:Erro interno ao fazer o movimento! caiu no default";
 				break;
 			}
-			return out + '\n' + ProduceBoard(PlayerIndex);
+			return out + '\n' + fazTabuleiro(PlayerIndex);
 		}
 	}
 
 	/**
-	 * Método que produz produz tabuleiros atualizados a serem enviados de volta,
+	 * Método que produz tabuleiros atualizados a serem enviados de volta,
 	 * atualizando os jogadores com a situção atual do jogo.
 	 * 
 	 * @param jogadorIndex
 	 * @return
 	 */
-	public String ProduceBoard(int PlayerIndex) {
+	public String fazTabuleiro(int PlayerIndex) {
 		char[][][] boards = game.getPlayerView(PlayerIndex);
 		String result = "Seu tabuleiro: \n";
 		result += " abcdefghij\n";
