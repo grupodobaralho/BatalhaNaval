@@ -17,7 +17,7 @@ public class ClientGame {
 	void start()
 	{
 		username = CreateName();
-		System.out.println("Uusario eh: "+username);
+		System.out.println("Usuario eh: "+username);
 		IO.sendMessage(username+":join");
 		if(IO.getMessage().equals("Servidor cheio"))
 		{
@@ -73,7 +73,7 @@ public class ClientGame {
 		{
 			try
 			{
-				System.out.println("Please entered a letter and number combination");
+				System.out.println("Por favor digite uma combinação de letra e número. EX: 'a0'");
 				command = inFromUser.readLine();
 			}
 			catch(IOException e)
@@ -84,7 +84,7 @@ public class ClientGame {
 			{
 				return command.toLowerCase();
 			}
-			System.out.println("Try again!");
+			System.out.println("Tente novamente!");
 		}
 	}
 	/**
@@ -127,7 +127,7 @@ public class ClientGame {
 				System.out.println("Local invalido, faz conflito com outro navio");
 				continue;
 			}
-			System.out.println("Enter the last square of the ship's location");
+			System.out.println("Informe o ultimo quadrante da localizacao do navio");
 			String endLoc = getLine();
 			if(shipLoc.charAt(0) == endLoc.charAt(0))
 			{

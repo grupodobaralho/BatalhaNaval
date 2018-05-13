@@ -12,7 +12,7 @@ public class ServerNetWorkIO {
 		try {
 			serverSocket = new DatagramSocket(port);
 		} catch (SocketException e) {
-			System.err.println("Error: Socket could not be created");
+			System.err.println("Error: Socket nao pode ser criado");
 			System.exit(1);
 		}
 	}
@@ -23,7 +23,7 @@ public class ServerNetWorkIO {
 		try {
 			serverSocket.receive(Packet);
 		} catch (IOException e) {
-			System.err.println("Error: error while recieving packet");
+			System.err.println("Error: Erro ao receber pacote");
 			return null;
 		}
 		return Packet;
@@ -33,7 +33,7 @@ public class ServerNetWorkIO {
 		try {
 			serverSocket.send(packet);
 		} catch (IOException e) {
-			System.err.println("Error: error while sending packet");
+			System.err.println("Error: Erro ao enviar pacote");
 		}
 	}
 }

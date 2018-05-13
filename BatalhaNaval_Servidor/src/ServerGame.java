@@ -74,12 +74,12 @@ public class ServerGame {
 				return;
 			} else {
 				if (!activeGame) {
-					result = "bad:Waiting for additonal players";
+					result = "bad:Aguardando jogadores adicionais...";
 				} else {
 					result = processMove(PlayerIndex, name, message);
 				}
 				if (result.substring(0, result.indexOf(":")).equals("win")) {
-					String out = "lose:You Lose!!";
+					String out = "lose:Voce perdeu!!";
 					IO.sendPacket(new DatagramPacket(out.getBytes(), out.getBytes().length,
 							IPAddress[(PlayerIndex + 1) % 2], ports[(PlayerIndex + 1) % 2]));
 					IPAddress = new InetAddress[2];
@@ -108,7 +108,7 @@ public class ServerGame {
 				IPAddress[i] = IP;
 				names[i] = name;
 				ports[i] = port;
-				System.out.println("Player: " + name + " joined from: " + IP);
+				System.out.println("Jogador: " + name + " entrou pelo IP: " + IP);
 				return i;
 			}
 		}
@@ -155,10 +155,10 @@ public class ServerGame {
 		if (shipIDs[PlayerIndex] == false) {
 			game.assignShips(PlayerIndex, move);
 			shipIDs[PlayerIndex] = true;
-			return "good:Ships succesfully placed!";
+			return "good:Navios alocados com sucesso!";
 		} else {
 			if (!shipIDs[(PlayerIndex + 1) % 2]) {
-				return "bad:Waiting for other player to place ships";
+				return "bad:Aguardando outros jogadores alocarem seus navios";
 			}
 			int x = move.charAt(0) - 97;
 			int y = move.charAt(1) - 48;
@@ -166,10 +166,10 @@ public class ServerGame {
 			String out;
 			switch (result) {
 			case -2:
-				out = "bad:It's not your turn right now!!";
+				out = "bad:Ainda nao eh o seu turno!";
 				break;
 			case -1:
-				out = "bad:You already attacked this spot!";
+				out = "bad:Voce ja atacou este local!";
 				break;
 			case 0:
 				out = "good:MISS!!";
@@ -181,7 +181,7 @@ public class ServerGame {
 				out = "win:You Win!!";
 				break;
 			default:
-				out = "error:Internal Error while makeing move";
+				out = "error:Erro interno ao fazer o movimento! caiu no default";
 				break;
 			}
 			return out + '\n' + ProduceBoard(PlayerIndex);
@@ -197,7 +197,7 @@ public class ServerGame {
 	 */
 	public String ProduceBoard(int PlayerIndex) {
 		char[][][] boards = game.getPlayerView(PlayerIndex);
-		String result = "Your board: \n";
+		String result = "Seu tabuleiro: \n";
 		result += " abcdefghij\n";
 		for (int i = 0; i < 10; i++) {
 			result += i;
@@ -206,7 +206,7 @@ public class ServerGame {
 			}
 			result += '\n';
 		}
-		result += "Enemy board: \nabcdefghij\n";
+		result += "Tabuleiro inimigo: \nabcdefghij\n";
 		for (int i = 0; i < 10; i++) {
 			result += i;
 			for (int j = 0; j < 10; j++) {
