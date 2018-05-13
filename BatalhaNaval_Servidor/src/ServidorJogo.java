@@ -25,9 +25,9 @@ public class ServidorJogo {
 	void start() {
 		while (true) {
 			System.out.println("Aguardando recebimento de pacotes...");
-			DatagramPacket packet = io.getPacket();
-			if (packet != null) {
-				processaInput(packet);
+			DatagramPacket pacote = io.getPacote();
+			if (pacote != null) {
+				processaInput(pacote);
 			}
 		}
 	}
@@ -40,17 +40,19 @@ public class ServidorJogo {
 		String mensagemPacote = new String(pacote.getData());
 		String nome = mensagemPacote.substring(0, mensagemPacote.indexOf(':'));
 		String mensagem = mensagemPacote.substring(mensagemPacote.indexOf(':') + 1, mensagemPacote.indexOf(0));
-		int PlayerIndex = getIndex(pacote.getAddress(), nome);
-		String result = "";
-
+		int indexJogador = getIndex(pacote.getAddress(), nome);
+		String resultado = "";
+		System.out.println("mensagem é1: " + mensagem);
 		// Em caso de jogador não registrado no servidor, verifica e cria-se jogador
-		if (PlayerIndex == -1) {
+		if (indexJogador == -1) {
+			System.out.println("mensagem é2: " + mensagem);
 			if (mensagem.equals("join")) {
-				PlayerIndex = criarIndexPlayer(pacote.getAddress(), nome, pacote.getPort());
-				if (PlayerIndex == -1) {
-					result = "bad:Servidor cheio";
+				indexJogador = criarIndexPlayer(pacote.getAddress(), nome, pacote.getPort());
+				if (indexJogador == -1) {
+					resultado = "bad:Servidor cheio";
 				} else {
-					result = "good:Bem vindo ao servidor, " + nome + "!";
+					resultado = "good:Bem vindo ao servidor, " + nome + "!";
+					System.out.println("mensagem é2.5: " + mensagem);
 				}
 				// Se os dois IPs estiverem registrados, inicia-se o jogo
 				if (!(iPs[0] == null) && !(iPs[1] == null)) {
@@ -60,28 +62,29 @@ public class ServidorJogo {
 			}
 
 		} else { // Caso um jogador saia
-			if (mensagem.equals("quit") && PlayerIndex != -1) {
-				removeIndexPlayer(PlayerIndex);
+			if (mensagem.equals("quit") && indexJogador != -1) {
+				System.out.println("mensagem é3: " + mensagem);
+				removeIndexPlayer(indexJogador);
 				jogoAtivo = false;
 				naviosIDs = new boolean[] { false, false };
-				io.sendPacket(new DatagramPacket(result.getBytes(), result.getBytes().length, pacote.getAddress(),
+				io.enviaPacote(new DatagramPacket(resultado.getBytes(), resultado.getBytes().length, pacote.getAddress(),
 						pacote.getPort()));
-				if (iPs[(PlayerIndex + 1) % 2] == null) {
-					result = "reset:Resetando servidor, jogador saiu";
-					io.sendPacket(new DatagramPacket(result.getBytes(), result.getBytes().length,
-							iPs[(PlayerIndex + 1) % 2], portas[(PlayerIndex + 1) % 2]));
+				if (iPs[(indexJogador + 1) % 2] == null) {
+					resultado = "reset:Resetando servidor, jogador saiu";
+					io.enviaPacote(new DatagramPacket(resultado.getBytes(), resultado.getBytes().length,
+							iPs[(indexJogador + 1) % 2], portas[(indexJogador + 1) % 2]));
 				}
 				return;
 			} else {
 				if (!jogoAtivo) {
-					result = "bad:Aguardando jogadores adicionais...";
+					resultado = "bad:Aguardando jogadores adicionais...";
 				} else {
-					result = processMove(PlayerIndex, nome, mensagem);
+					resultado = processMove(indexJogador, nome, mensagem);
 				}
-				if (result.substring(0, result.indexOf(":")).equals("win")) {
+				if (resultado.substring(0, resultado.indexOf(":")).equals("win")) {
 					String out = "lose:Voce perdeu!!";
-					io.sendPacket(new DatagramPacket(out.getBytes(), out.getBytes().length,
-							iPs[(PlayerIndex + 1) % 2], portas[(PlayerIndex + 1) % 2]));
+					io.enviaPacote(new DatagramPacket(out.getBytes(), out.getBytes().length,
+							iPs[(indexJogador + 1) % 2], portas[(indexJogador + 1) % 2]));
 					iPs = new InetAddress[2];
 					names = new String[2];
 					portas = new int[2];
@@ -90,8 +93,8 @@ public class ServidorJogo {
 				}
 			}
 		}
-		io.sendPacket(
-				new DatagramPacket(result.getBytes(), result.getBytes().length, pacote.getAddress(), pacote.getPort()));
+		io.enviaPacote(
+				new DatagramPacket(resultado.getBytes(), resultado.getBytes().length, pacote.getAddress(), pacote.getPort()));
 	}
 
 	/**
