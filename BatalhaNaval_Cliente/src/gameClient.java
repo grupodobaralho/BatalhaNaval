@@ -7,10 +7,11 @@ public class gameClient
 {
 	public static void main(String args[]) throws Exception
 	{
-		Scanner in = new Scanner(System.in);
-		
-		int port = in.nextInt();		
-		String ip = in.next();
+		Scanner in = new Scanner(System.in);		
+		System.out.println("Informe o IP do servidor: ");
+		String ip = in.nextLine();
+		System.out.println("Informe a porta: ");
+		int port = Integer.parseInt(in.nextLine());
 		
 //		int port = 0;
 //		if(args.length < 2)
