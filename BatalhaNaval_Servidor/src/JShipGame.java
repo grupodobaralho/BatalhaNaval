@@ -1,105 +1,107 @@
+import java.io.*;
+import java.net.*;
 import java.util.Arrays;
 
 public class JShipGame {
-	char[][][] tabuleirosJogadores;
-	final static char vazio = '-', falha = 'O', acerto = 'X', ocupado = 'S';
-	int jogadorAtivo;
+	char[][][] PlayerBoards;
+	final static char empty = '-', miss = 'O', hit = 'X', occupied = 'S';
+	int ActivePlayer;
 
-	private class coordenada {
+	private class coordinate {
 		public int X;
 		public int Y;
 
-		coordenada(int x, int y) {
+		coordinate(int x, int y) {
 			X = x;
 			Y = y;
 		}
 	}
 
 	JShipGame() {
-		tabuleirosJogadores = new char[2][10][10];
+		PlayerBoards = new char[2][10][10];
 		for (int i = 0; i < 10; i++) {
-			Arrays.fill(tabuleirosJogadores[0][i], vazio);
-			Arrays.fill(tabuleirosJogadores[1][i], vazio);
+			Arrays.fill(PlayerBoards[0][i], empty);
+			Arrays.fill(PlayerBoards[1][i], empty);
 		}
-		jogadorAtivo = 0;
+		ActivePlayer = 0;
 	}
 
-	void atribuirNavios(int indexJogador, String navios) {
-		for (int i = 0; i < navios.length(); i += 2) {
-			String loc = navios.substring(i, i + 2);
-			tabuleirosJogadores[indexJogador][loc.charAt(0) - 97][loc.charAt(1) - 48] = 'S';
+	void assignShips(int PlayerIndex, String ships) {
+		for (int i = 0; i < ships.length(); i += 2) {
+			String loc = ships.substring(i, i + 2);
+			PlayerBoards[PlayerIndex][loc.charAt(0) - 97][loc.charAt(1) - 48] = 'S';
 		}
 	}
 
-	int fazMovimeto(int indexJogador, int x, int y) {
-		if (indexJogador != jogadorAtivo) {
+	int MakeMove(int PlayerIndex, int x, int y) {
+		if (PlayerIndex != ActivePlayer) {
 			return -2;
 		}
-		coordenada move = new coordenada(x, y);
-		int result = atacar(indexJogador, move);
+		coordinate move = new coordinate(x, y);
+		int result = Attack(PlayerIndex, move);
 		switch (result) {
 		case -1:
 			return -1;
 		case 0:
-			jogadorAtivo = (indexJogador + 1) % 2;
+			ActivePlayer = (PlayerIndex + 1) % 2;
 			return 0;
 		case 1:
-			if (checarVencedor(jogadorAtivo)) {
+			if (checkWinner(ActivePlayer)) {
 				return 2;
 			}
-			jogadorAtivo = (indexJogador + 1) % 2;
+			ActivePlayer = (PlayerIndex + 1) % 2;
 			return 1;
 		default:
 			return -3;
 		}
 	}
 
-	private int atacar(int indexJogador, coordenada c) {
-		char spot = tabuleirosJogadores[(indexJogador + 1) % 2][c.X][c.Y];
+	private int Attack(int PlayerIndex, coordinate c) {
+		char spot = PlayerBoards[(PlayerIndex + 1) % 2][c.X][c.Y];
 		switch (spot) {
-		case vazio:
-			tabuleirosJogadores[(indexJogador + 1) % 2][c.X][c.Y] = falha;
+		case empty:
+			PlayerBoards[(PlayerIndex + 1) % 2][c.X][c.Y] = miss;
 			return 0;
-		case ocupado:
-			tabuleirosJogadores[(indexJogador + 1) % 2][c.X][c.Y] = acerto;
+		case occupied:
+			PlayerBoards[(PlayerIndex + 1) % 2][c.X][c.Y] = hit;
 			return 1;
 		default:
 			return -1;
 		}
 	}
 
-	private boolean checarVencedor(int indexJogador) {
-		boolean venceu = true;
+	private boolean checkWinner(int PlayerIndex) {
+		boolean won = true;
 		for (int i = 0; i < 10; i++) {
 			for (int j = 0; j < 10; j++) {
-				if (tabuleirosJogadores[(indexJogador + 1) % 2][i][j] == ocupado) {
-					venceu = false;
+				if (PlayerBoards[(PlayerIndex + 1) % 2][i][j] == occupied) {
+					won = false;
 					break;
 				}
 			}
 		}
-		return venceu;
+		return won;
 	}
 
-	private char[][] ConvertToEnemyView(char[][] tabuleiro) {
-		char[][] interno = new char[10][10];
+	private char[][] ConvertToEnemyView(char[][] board) {
+		char[][] internal = new char[10][10];
 		for (int i = 0; i < 10; i++) {
-			interno[i] = (char[]) tabuleiro[i].clone();
+			internal[i] = (char[]) board[i].clone();
 		}
 		for (int i = 0; i < 10; i++) {
 			for (int j = 0; j < 10; j++) {
-				if (tabuleiro[j][i] == ocupado) {
-					interno[j][i] = vazio;
+				if (board[j][i] == occupied) {
+					internal[j][i] = empty;
 				}
 			}
 		}
-		return interno;
+		return internal;
 	}
 
-	public char[][][] getPlayerView(int indexJogador) {
+	public char[][][] getPlayerView(int PlayerIndex) {
 		char[][][] results = new char[2][10][10];
-		results[0] = tabuleirosJogadores[indexJogador];
-		results[1] = ConvertToEnemyView(tabuleirosJogadores[(indexJogador + 1) % 2]);
+		results[0] = PlayerBoards[PlayerIndex];
+		results[1] = ConvertToEnemyView(PlayerBoards[(PlayerIndex + 1) % 2]);
 		return results;
 	}
 }
