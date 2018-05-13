@@ -18,7 +18,7 @@ public class ClientNetWorkIO
 		}
 		catch(UnknownHostException e)
 		{
-			System.err.println("Erro: Host inválido");
+			System.err.println("Error: Host invalid");
 			System.exit(1);
 		}
 		try
@@ -27,7 +27,7 @@ public class ClientNetWorkIO
 		}
 		catch(SocketException e)
 		{
-			System.err.println("Erro: Socket não pode ser criado");
+			System.err.println("Error: Socket could not be created");
 			System.exit(1);
 		}
 	}
@@ -42,7 +42,7 @@ public class ClientNetWorkIO
 		}
 		catch(IOException e)
 		{
-			System.err.println("Erro: Falha no recebimento de pacote");
+			System.err.println("Error: error while recieving packet");
 			return "";
 		};
 		return new String(Packet.getData());
@@ -58,7 +58,7 @@ public class ClientNetWorkIO
 		}
 		catch(IOException e)
 		{
-			System.err.println("Erro: Falha no recebimento de pacote");
+			System.err.println("Error: error while sending packet");
 		}
 	}
 }

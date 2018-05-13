@@ -1,9 +1,16 @@
+import java.io.*;
+import java.net.*;
+import java.util.Arrays;
+import java.util.Scanner;
+
 public class gameClient 
 {
 	public static void main(String args[]) throws Exception
 	{
-		String ip = "127.0.0.1";
-		int port = 5556;
+		Scanner in = new Scanner(System.in);
+		
+		int port = in.nextInt();		
+		String ip = in.next();
 		
 //		int port = 0;
 //		if(args.length < 2)
