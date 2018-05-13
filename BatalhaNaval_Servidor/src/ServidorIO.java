@@ -3,12 +3,12 @@ import java.net.*;
 
 public class ServidorIO {
 	private DatagramSocket serverSocket;
-	private int port;
-	private DatagramPacket Packet;
-	private byte[] Data;
+	private int porta;
+	private DatagramPacket packet;
+	private byte[] dados;
 
 	ServidorIO(int port) {
-		this.port = port;
+		this.porta = port;
 		try {
 			serverSocket = new DatagramSocket(port);
 		} catch (SocketException e) {
@@ -18,15 +18,15 @@ public class ServidorIO {
 	}
 
 	public DatagramPacket getPacket() {
-		Data = new byte[1024];
-		Packet = new DatagramPacket(Data, Data.length);
+		dados = new byte[1024];
+		packet = new DatagramPacket(dados, dados.length);
 		try {
-			serverSocket.receive(Packet);
+			serverSocket.receive(packet);
 		} catch (IOException e) {
 			System.err.println("Error: Erro ao receber pacote");
 			return null;
 		}
-		return Packet;
+		return packet;
 	}
 
 	public void sendPacket(DatagramPacket packet) {

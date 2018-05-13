@@ -12,25 +12,8 @@ public class AppCliente
 		String ip = in.nextLine();
 		System.out.println("Informe a porta: ");
 		int port = Integer.parseInt(in.nextLine());
-		
-//		int port = 0;
-//		if(args.length < 2)
-//		{
-//			System.err.println("Error: Please a server name or address and a port number");
-//			System.exit(1);
-//		}
-//		try
-//		{
-//			port = Integer.parseInt(args[1]);
-//		}
-//		catch(NumberFormatException e)
-//		{
-//			System.err.println("Error: Argument could not be parsed into an integer, please include port number as second argument");
-//			System.exit(1);
-//		}
-//		ClientGame game = new ClientGame(args[0], port);
-		ClienteJogo game = new ClienteJogo(ip, port);
-		game.start();
+		ClienteJogo jogo = new ClienteJogo(ip, port);
+		jogo.start();
 	}
 
 }

@@ -3,14 +3,14 @@ import java.net.*;
 import java.util.Arrays;
 
 public class ClienteJogo {
-	ClienteIO IO;
-	BufferedReader inFromUser; //Buffered Reader para leitura do input do usuário
+	ClienteIO io;
+	BufferedReader inUsuario; //Buffered Reader para leitura do input do usuário
 	public String username;
-	boolean activeGame;
+	boolean jogoAtivo;
 	ClienteJogo(String address, int port)
 	{
-		IO = new ClienteIO(address, port);
-		inFromUser = new BufferedReader(new InputStreamReader(System.in));
+		io = new ClienteIO(address, port);
+		inUsuario = new BufferedReader(new InputStreamReader(System.in));
 
 	}
 
@@ -18,8 +18,8 @@ public class ClienteJogo {
 	{
 		username = CreateName();
 		System.out.println("Usuario eh: "+username);
-		IO.sendMessage(username+":join");
-		if(IO.getMessage().equals("Servidor cheio"))
+		io.sendMensagem(username+":join");
+		if(io.getMensagem().equals("Servidor cheio"))
 		{
 			System.out.println("Servidor cheio, tente novamente mais tarde");
 			System.exit(0);
@@ -28,7 +28,7 @@ public class ClienteJogo {
 		{
 			startGame();
 		}
-		IO.sendMessage(username+":quit");
+		io.sendMensagem(username+":quit");
 	}
 
 	private String CreateName()
@@ -38,7 +38,7 @@ public class ClienteJogo {
 			System.out.print("Por favor digite um nome de usuario: ");
 			try
 			{
-				return inFromUser.readLine();
+				return inUsuario.readLine();
 			}
 			catch(IOException e)
 			{
@@ -49,14 +49,14 @@ public class ClienteJogo {
 
 	private void startGame()
 	{
-			activeGame = true;
-			IO.sendMessage(username+":"+getShips());
-			ProcessCommand(IO.getMessage());
-			while(activeGame)
+			jogoAtivo = true;
+			io.sendMensagem(username+":"+getShips());
+			ProcessCommand(io.getMensagem());
+			while(jogoAtivo)
 			{
-				IO.sendMessage(username+":"+getLine());
+				io.sendMensagem(username+":"+getLine());
 				System.out.println("Pacote enviado... Aguardando Replay...");
-				ProcessCommand(IO.getMessage());
+				ProcessCommand(io.getMensagem());
 			}
 	}
 
@@ -74,7 +74,7 @@ public class ClienteJogo {
 			try
 			{
 				System.out.println("Por favor digite uma combinação de letra e número. EX: 'a0'");
-				command = inFromUser.readLine();
+				command = inUsuario.readLine();
 			}
 			catch(IOException e)
 			{
@@ -260,7 +260,7 @@ public class ClienteJogo {
 		String external = Command.substring(Command.indexOf(":")+1, Command.indexOf(0));
 		if(internal.equals("win")||internal.equals("lose")||internal.equals("reset"))
 		{
-			activeGame = false;
+			jogoAtivo = false;
 		}
 		System.out.println(external);
 	}

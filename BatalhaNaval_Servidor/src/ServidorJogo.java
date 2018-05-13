@@ -1,21 +1,21 @@
 import java.net.*;
 
 public class ServidorJogo {
-	ServidorIO IO; // Classe que faz o tratamento da conexão - Entrada e Saida (IO)
-	private InetAddress[] IPAddress; // Vetor de IPs Inet que guarda os ips dos clientes
+	ServidorIO io; // Classe que faz o tratamento da conexão - Entrada e Saida (IO)
+	private InetAddress[] iPs; // Vetor de IPs Inet que guarda os ips dos clientes
 	private String[] names; // Guarda o nome dos clientes
-	private int ports[]; // Guarda a porta de acesso aos clientes
-	private BatalhaNaval game; // Classe que faz o tratamento do jogo no servidor
-	boolean shipIDs[]; // boolean que informa se o jogador já alocou os navios
-	boolean activeGame; // Variavel que indica se o jogo está ativo
+	private int[] portas; // Guarda a porta de acesso aos clientes
+	private BatalhaNaval jogo; // Classe que faz o tratamento do jogo no servidor
+	boolean[] naviosIDs; // boolean que informa se o jogador já alocou os navios
+	boolean jogoAtivo; // Variavel que indica se o jogo está ativo
 
 	public ServidorJogo(int port) {
-		IO = new ServidorIO(port);
-		IPAddress = new InetAddress[2];
+		io = new ServidorIO(port);
+		iPs = new InetAddress[2];
 		names = new String[2];
-		ports = new int[2];
-		shipIDs = new boolean[] { false, false };
-		activeGame = false;
+		portas = new int[2];
+		naviosIDs = new boolean[] { false, false };
+		jogoAtivo = false;
 	}
 
 	/**
@@ -25,7 +25,7 @@ public class ServidorJogo {
 	void start() {
 		while (true) {
 			System.out.println("Aguardando recebimento de pacotes...");
-			DatagramPacket packet = IO.getPacket();
+			DatagramPacket packet = io.getPacket();
 			if (packet != null) {
 				processaInput(packet);
 			}
@@ -36,62 +36,62 @@ public class ServidorJogo {
 	 * 
 	 * @param pacote
 	 */
-	public void processaInput(DatagramPacket packet) {
-		String packetMessage = new String(packet.getData());
-		String name = packetMessage.substring(0, packetMessage.indexOf(':'));
-		String message = packetMessage.substring(packetMessage.indexOf(':') + 1, packetMessage.indexOf(0));
-		int PlayerIndex = getIndex(packet.getAddress(), name);
+	public void processaInput(DatagramPacket pacote) {
+		String mensagemPacote = new String(pacote.getData());
+		String nome = mensagemPacote.substring(0, mensagemPacote.indexOf(':'));
+		String mensagem = mensagemPacote.substring(mensagemPacote.indexOf(':') + 1, mensagemPacote.indexOf(0));
+		int PlayerIndex = getIndex(pacote.getAddress(), nome);
 		String result = "";
 
 		// Em caso de jogador não registrado no servidor, verifica e cria-se jogador
 		if (PlayerIndex == -1) {
-			if (message.equals("join")) {
-				PlayerIndex = criarIndexPlayer(packet.getAddress(), name, packet.getPort());
+			if (mensagem.equals("join")) {
+				PlayerIndex = criarIndexPlayer(pacote.getAddress(), nome, pacote.getPort());
 				if (PlayerIndex == -1) {
 					result = "bad:Servidor cheio";
 				} else {
-					result = "good:Bem vindo ao servidor, " + name + "!";
+					result = "good:Bem vindo ao servidor, " + nome + "!";
 				}
 				// Se os dois IPs estiverem registrados, inicia-se o jogo
-				if (!(IPAddress[0] == null) && !(IPAddress[1] == null)) {
-					activeGame = true;
-					game = new BatalhaNaval();
+				if (!(iPs[0] == null) && !(iPs[1] == null)) {
+					jogoAtivo = true;
+					jogo = new BatalhaNaval();
 				}
 			}
 
 		} else { // Caso um jogador saia
-			if (message.equals("quit") && PlayerIndex != -1) {
+			if (mensagem.equals("quit") && PlayerIndex != -1) {
 				removeIndexPlayer(PlayerIndex);
-				activeGame = false;
-				shipIDs = new boolean[] { false, false };
-				IO.sendPacket(new DatagramPacket(result.getBytes(), result.getBytes().length, packet.getAddress(),
-						packet.getPort()));
-				if (IPAddress[(PlayerIndex + 1) % 2] == null) {
+				jogoAtivo = false;
+				naviosIDs = new boolean[] { false, false };
+				io.sendPacket(new DatagramPacket(result.getBytes(), result.getBytes().length, pacote.getAddress(),
+						pacote.getPort()));
+				if (iPs[(PlayerIndex + 1) % 2] == null) {
 					result = "reset:Resetando servidor, jogador saiu";
-					IO.sendPacket(new DatagramPacket(result.getBytes(), result.getBytes().length,
-							IPAddress[(PlayerIndex + 1) % 2], ports[(PlayerIndex + 1) % 2]));
+					io.sendPacket(new DatagramPacket(result.getBytes(), result.getBytes().length,
+							iPs[(PlayerIndex + 1) % 2], portas[(PlayerIndex + 1) % 2]));
 				}
 				return;
 			} else {
-				if (!activeGame) {
+				if (!jogoAtivo) {
 					result = "bad:Aguardando jogadores adicionais...";
 				} else {
-					result = processMove(PlayerIndex, name, message);
+					result = processMove(PlayerIndex, nome, mensagem);
 				}
 				if (result.substring(0, result.indexOf(":")).equals("win")) {
 					String out = "lose:Voce perdeu!!";
-					IO.sendPacket(new DatagramPacket(out.getBytes(), out.getBytes().length,
-							IPAddress[(PlayerIndex + 1) % 2], ports[(PlayerIndex + 1) % 2]));
-					IPAddress = new InetAddress[2];
+					io.sendPacket(new DatagramPacket(out.getBytes(), out.getBytes().length,
+							iPs[(PlayerIndex + 1) % 2], portas[(PlayerIndex + 1) % 2]));
+					iPs = new InetAddress[2];
 					names = new String[2];
-					ports = new int[2];
-					shipIDs = new boolean[] { false, false };
-					activeGame = false;
+					portas = new int[2];
+					naviosIDs = new boolean[] { false, false };
+					jogoAtivo = false;
 				}
 			}
 		}
-		IO.sendPacket(
-				new DatagramPacket(result.getBytes(), result.getBytes().length, packet.getAddress(), packet.getPort()));
+		io.sendPacket(
+				new DatagramPacket(result.getBytes(), result.getBytes().length, pacote.getAddress(), pacote.getPort()));
 	}
 
 	/**
@@ -103,11 +103,11 @@ public class ServidorJogo {
 	 * @return
 	 */
 	private int criarIndexPlayer(InetAddress IP, String name, int port) {
-		for (int i = 0; i < IPAddress.length; i++) {
-			if (IPAddress[i] == null) {
-				IPAddress[i] = IP;
+		for (int i = 0; i < iPs.length; i++) {
+			if (iPs[i] == null) {
+				iPs[i] = IP;
 				names[i] = name;
-				ports[i] = port;
+				portas[i] = port;
 				System.out.println("Jogador: " + name + " entrou pelo IP: " + IP);
 				return i;
 			}
@@ -122,9 +122,9 @@ public class ServidorJogo {
 	 */
 	private void removeIndexPlayer(int Index) {
 		if (Index != -1) {
-			IPAddress[Index] = null;
+			iPs[Index] = null;
 			names[Index] = null;
-			ports[Index] = 0;
+			portas[Index] = 0;
 		}
 	}
 
@@ -136,8 +136,8 @@ public class ServidorJogo {
 	 * @return
 	 */
 	private int getIndex(InetAddress IP, String name) {
-		for (int i = 0; i < IPAddress.length; i++) {
-			if (IPAddress[i] != null && IPAddress[i].equals(IP) && name.equals(names[i]))
+		for (int i = 0; i < iPs.length; i++) {
+			if (iPs[i] != null && iPs[i].equals(IP) && name.equals(names[i]))
 				return i;
 		}
 		return -1;
@@ -153,14 +153,14 @@ public class ServidorJogo {
 	 */
 	private String processMove(int PlayerIndex, String name, String move) {
 		// Se o usuário ainda nao alocou os navios, aloca!
-		if (shipIDs[PlayerIndex] == false) {
-			game.assignShips(PlayerIndex, move);
-			shipIDs[PlayerIndex] = true;
+		if (naviosIDs[PlayerIndex] == false) {
+			jogo.assignShips(PlayerIndex, move);
+			naviosIDs[PlayerIndex] = true;
 			return "good:Navios alocados com sucesso!";
 		} else {
 			
 			// Se o outro jogador ainda nao alocou o navio, mantem standby
-			if (!shipIDs[(PlayerIndex + 1) % 2]) {
+			if (!naviosIDs[(PlayerIndex + 1) % 2]) {
 				return "bad:Aguardando outros jogadores alocarem seus navios";
 			}
 			
@@ -171,7 +171,7 @@ public class ServidorJogo {
 			
 			// Chama funcao que busca o resultado de um movimento enviando o jogador
 			// e a posicao correspondente no plano
-			int result = game.MakeMove(PlayerIndex, x, y);
+			int result = jogo.MakeMove(PlayerIndex, x, y);
 			String out;
 			switch (result) {
 			case -2:
@@ -205,7 +205,7 @@ public class ServidorJogo {
 	 * @return
 	 */
 	public String fazTabuleiro(int PlayerIndex) {
-		char[][][] boards = game.getPlayerView(PlayerIndex);
+		char[][][] boards = jogo.getPlayerView(PlayerIndex);
 		String result = "Seu tabuleiro: \n";
 		result += " abcdefghij\n";
 		for (int i = 0; i < 10; i++) {
