@@ -31,7 +31,7 @@ public class JShipGame {
 		}
 	}
 
-	int MakeMove(int indexJogador, int x, int y) {
+	int fazMovimeto(int indexJogador, int x, int y) {
 		if (indexJogador != jogadorAtivo) {
 			return -2;
 		}

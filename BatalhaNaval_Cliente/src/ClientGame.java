@@ -17,13 +17,13 @@ public class ClientGame {
 		usuario = CreateName();
 		System.out.println("Usuário é: " + usuario);
 		IO.sendMessage(usuario + ":join");
-		if (IO.getMessage().equals("Server full")) {
+		if (IO.getMessage().equals("Servidor cheio")) {
 			System.out.println("Servidor cheio, tente novamente mais tarde");
 			System.exit(0);
 		} else {
 			startGame();
 		}
-		IO.sendMessage(usuario + ":quit");
+		IO.sendMessage(usuario + ":sair");
 	}
 
 	private String CreateName() {
@@ -71,6 +71,8 @@ public class ClientGame {
 	}
 
 	/**
+	 * Método que cria o tabuleiro do jogador com os navios e converte a informação
+	 * para String que será enviada via Socket
 	 * 
 	 * @return
 	 */
@@ -214,11 +216,11 @@ public class ClientGame {
 	}
 
 	private void ProcessCommand(String Command) {
-		String internal = Command.substring(0, Command.indexOf(":"));
-		String external = Command.substring(Command.indexOf(":") + 1, Command.indexOf(0));
-		if (internal.equals("win") || internal.equals("lose") || internal.equals("reset")) {
+		String interno = Command.substring(0, Command.indexOf(":"));
+		String externo = Command.substring(Command.indexOf(":") + 1, Command.indexOf(0));
+		if (interno.equals("vitoria") || interno.equals("derrota") || interno.equals("reseta")) {
 			activeGame = false;
 		}
-		System.out.println(external);
+		System.out.println(externo);
 	}
 }

@@ -2,38 +2,38 @@ import java.io.*;
 import java.net.*;
 
 class ServerNetWorkIO {
-	private DatagramSocket serverSocket;
-	private int port;
-	private DatagramPacket Packet;
-	private byte[] Data;
+	private DatagramSocket socketServidor;
+	private int porta;
+	private DatagramPacket pacote;
+	private byte[] dados;
 
-	ServerNetWorkIO(int port) {
-		this.port = port;
+	ServerNetWorkIO(int porta) {
+		this.porta = porta;
 		try {
-			serverSocket = new DatagramSocket(port);
+			socketServidor = new DatagramSocket(porta);
 		} catch (SocketException e) {
-			System.err.println("Error: Socket could not be created");
+			System.err.println("Erro: Socket nâo pode ser criado");
 			System.exit(1);
 		}
 	}
 
-	public DatagramPacket getPacket() {
-		Data = new byte[1024];
-		Packet = new DatagramPacket(Data, Data.length);
+	public DatagramPacket getPacote() {
+		dados = new byte[1024];
+		pacote = new DatagramPacket(dados, dados.length);
 		try {
-			serverSocket.receive(Packet);
+			socketServidor.receive(pacote);
 		} catch (IOException e) {
-			System.err.println("Error: error while recieving packet");
+			System.err.println("Erro: Erro durante recebimento de pacote");
 			return null;
 		}
-		return Packet;
+		return pacote;
 	}
 
-	public void sendPacket(DatagramPacket packet) {
+	public void enviaPacote(DatagramPacket pacote) {
 		try {
-			serverSocket.send(packet);
+			socketServidor.send(pacote);
 		} catch (IOException e) {
-			System.err.println("Error: error while sending packet");
+			System.err.println("Erro: Erro durante envio de pacote");
 		}
 	}
 }
