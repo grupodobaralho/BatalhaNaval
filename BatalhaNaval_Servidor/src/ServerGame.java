@@ -6,7 +6,7 @@ public class ServerGame {
 	private String[] names; // Guarda o nome dos clientes
 	private int ports[]; // Guarda a porta de acesso aos clientes
 	private JShipGame game; // Classe que faz o tratamento do jogo no servidor
-	boolean shipIDs[];
+	boolean shipIDs[]; // boolean que informa se o jogador já alocou os navios
 	boolean activeGame; // Variavel que indica se o jogo está ativo
 
 	public ServerGame(int port) {
@@ -59,7 +59,7 @@ public class ServerGame {
 				}
 			}
 
-		} else {  //Caso um jogador saia
+		} else { // Caso um jogador saia
 			if (message.equals("quit") && PlayerIndex != -1) {
 				RemovePlayerindex(PlayerIndex);
 				activeGame = false;
@@ -152,16 +152,25 @@ public class ServerGame {
 	 * @return
 	 */
 	private String processMove(int PlayerIndex, String name, String move) {
+		// Se o usuário ainda nao alocou os navios, aloca!
 		if (shipIDs[PlayerIndex] == false) {
 			game.assignShips(PlayerIndex, move);
 			shipIDs[PlayerIndex] = true;
 			return "good:Navios alocados com sucesso!";
 		} else {
+			
+			// Se o outro jogador ainda nao alocou o navio, mantem standby
 			if (!shipIDs[(PlayerIndex + 1) % 2]) {
 				return "bad:Aguardando outros jogadores alocarem seus navios";
 			}
-			int x = move.charAt(0) - 97;
-			int y = move.charAt(1) - 48;
+			
+			// Converte as coordenadas do usuario para a posicao correta no plano
+			System.out.println(move);
+			int x = move.charAt(0) - 97; //97 eh codigo para a letra a
+			int y = move.charAt(1) - 48; //
+			
+			// Chama funcao que busca o resultado de um movimento enviando o jogador
+			// e a posicao correspondente no plano
 			int result = game.MakeMove(PlayerIndex, x, y);
 			String out;
 			switch (result) {
