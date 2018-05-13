@@ -1,22 +1,23 @@
+import java.io.*;
 import java.net.*;
+import java.util.Arrays;
 
 public class ServerGame {
-	ServerNetWorkIO IO; // Classe que faz o tratamento da rede - Entrada e Saida (IO)
+	ServerNetWorkIO IO; // Classe que faz o tratamento da conexão - Entrada e Saida (IO)
+	private InetAddress[] IPAddress; // Vetor de IPs Inet que guarda os ips dos clientes
+	private String[] names; // Guarda o nome dos clientes
+	private int ports[]; // Guarda a porta de acesso aos clientes
+	private JShipGame game; // Classe que faz o tratamento do jogo no servidor
+	boolean shipIDs[];
+	boolean activeGame; // Variavel que indica se o jogo está ativo
 
-	private InetAddress[] enderecosIP; // Vetor de IPs Inet que guarda os ips dos clientes
-	private String[] nomes; // Guarda o nome dos clientes
-	private int portas[]; // Guarda a porta de acesso aos clientes
-	private JShipGame jogo; // Classe que faz o tratamento do jogo no servidor
-	boolean idsNavios[]; //
-	boolean jogoAtivo; // Variavel que indica se o jogo está ativo
-
-	public ServerGame(int porta) {
-		IO = new ServerNetWorkIO(porta);
-		enderecosIP = new InetAddress[2];
-		nomes = new String[2];
-		portas = new int[2];
-		idsNavios = new boolean[] { false, false };
-		jogoAtivo = false;
+	public ServerGame(int port) {
+		IO = new ServerNetWorkIO(port);
+		IPAddress = new InetAddress[2];
+		names = new String[2];
+		ports = new int[2];
+		shipIDs = new boolean[] { false, false };
+		activeGame = false;
 	}
 
 	/**
@@ -25,10 +26,10 @@ public class ServerGame {
 	 */
 	void start() {
 		while (true) {
-			System.out.println("Aguardando pacote...");
-			DatagramPacket pacote = IO.getPacote();
-			if (pacote != null) {
-				processaInput(pacote);
+			System.out.println("Aguardando recebimento de pacotes...");
+			DatagramPacket packet = IO.getPacket();
+			if (packet != null) {
+				ProccessInput(packet);
 			}
 		}
 	}
@@ -37,63 +38,62 @@ public class ServerGame {
 	 * 
 	 * @param pacote
 	 */
-	public void processaInput(DatagramPacket pacote) {
-		String mensagemPacote = new String(pacote.getData());
-		String nome = mensagemPacote.substring(0, mensagemPacote.indexOf(':'));
-		String mensagem = mensagemPacote.substring(mensagemPacote.indexOf(':') + 1, mensagemPacote.indexOf(0));
-		int jogadorIndex = getIndex(pacote.getAddress(), nome);
-		String resultado = "";
-		
-		//Em caso de jogador não registrado no servidor, verifica e cria-se jogador
-		if (jogadorIndex == -1) {
-			if (mensagem.equals("entrar")) {
-				jogadorIndex = criaJogadorIndex(pacote.getAddress(), nome, pacote.getPort());
-				if (jogadorIndex == -1) {
-					resultado = "ruim:Servidor cheio";
+	public void ProccessInput(DatagramPacket packet) {
+		String packetMessage = new String(packet.getData());
+		String name = packetMessage.substring(0, packetMessage.indexOf(':'));
+		String message = packetMessage.substring(packetMessage.indexOf(':') + 1, packetMessage.indexOf(0));
+		int PlayerIndex = GetIndex(packet.getAddress(), name);
+		String result = "";
+
+		// Em caso de jogador não registrado no servidor, verifica e cria-se jogador
+		if (PlayerIndex == -1) {
+			if (message.equals("join")) {
+				PlayerIndex = CreatePlayerindex(packet.getAddress(), name, packet.getPort());
+				if (PlayerIndex == -1) {
+					result = "bad:Server full";
 				} else {
-					resultado = "bom:Bem vindo ao servidor, " + nome + "!";
+					result = "good:Welcome to the server, " + name + "!";
 				}
-				
-				//Se os dois IPs estiverem registrados, inicia-se o jogo
-				if (!(enderecosIP[0] == null) && !(enderecosIP[1] == null)) {
-					jogoAtivo = true;
-					jogo = new JShipGame();
+				// Se os dois IPs estiverem registrados, inicia-se o jogo
+				if (!(IPAddress[0] == null) && !(IPAddress[1] == null)) {
+					activeGame = true;
+					game = new JShipGame();
 				}
 			}
 
-		} else { //Caso um jogador saia
-			if (mensagem.equals("sair") && jogadorIndex != -1) {
-				removeJogadorIndex(jogadorIndex);
-				jogoAtivo = false;
-				idsNavios = new boolean[] { false, false };
-				IO.enviaPacote(new DatagramPacket(resultado.getBytes(), resultado.getBytes().length,
-						pacote.getAddress(), pacote.getPort()));
-				if (enderecosIP[(jogadorIndex + 1) % 2] == null) {
-					resultado = "reseta:Reseta servidor, jogador saiu";
-					IO.enviaPacote(new DatagramPacket(resultado.getBytes(), resultado.getBytes().length,
-							enderecosIP[(jogadorIndex + 1) % 2], portas[(jogadorIndex + 1) % 2]));
+		} else {  //Caso um jogador saia
+			if (message.equals("quit") && PlayerIndex != -1) {
+				RemovePlayerindex(PlayerIndex);
+				activeGame = false;
+				shipIDs = new boolean[] { false, false };
+				IO.sendPacket(new DatagramPacket(result.getBytes(), result.getBytes().length, packet.getAddress(),
+						packet.getPort()));
+				if (IPAddress[(PlayerIndex + 1) % 2] == null) {
+					result = "reset:Server reset, player left";
+					IO.sendPacket(new DatagramPacket(result.getBytes(), result.getBytes().length,
+							IPAddress[(PlayerIndex + 1) % 2], ports[(PlayerIndex + 1) % 2]));
 				}
 				return;
 			} else {
-				if (!jogoAtivo) {
-					resultado = "ruim:Aguardando jogadores adicionais!";
+				if (!activeGame) {
+					result = "bad:Waiting for additonal players";
 				} else {
-					resultado = processaMovimento(jogadorIndex, nome, mensagem);
+					result = processMove(PlayerIndex, name, message);
 				}
-				if (resultado.substring(0, resultado.indexOf(":")).equals("vitoria")) {
-					String out = "derrota:Você perdeu!!";
-					IO.enviaPacote(new DatagramPacket(out.getBytes(), out.getBytes().length,
-							enderecosIP[(jogadorIndex + 1) % 2], portas[(jogadorIndex + 1) % 2]));
-					enderecosIP = new InetAddress[2];
-					nomes = new String[2];
-					portas = new int[2];
-					idsNavios = new boolean[] { false, false };
-					jogoAtivo = false;
+				if (result.substring(0, result.indexOf(":")).equals("win")) {
+					String out = "lose:You Lose!!";
+					IO.sendPacket(new DatagramPacket(out.getBytes(), out.getBytes().length,
+							IPAddress[(PlayerIndex + 1) % 2], ports[(PlayerIndex + 1) % 2]));
+					IPAddress = new InetAddress[2];
+					names = new String[2];
+					ports = new int[2];
+					shipIDs = new boolean[] { false, false };
+					activeGame = false;
 				}
 			}
 		}
-		IO.enviaPacote(new DatagramPacket(resultado.getBytes(), resultado.getBytes().length, pacote.getAddress(),
-				pacote.getPort()));
+		IO.sendPacket(
+				new DatagramPacket(result.getBytes(), result.getBytes().length, packet.getAddress(), packet.getPort()));
 	}
 
 	/**
@@ -104,13 +104,13 @@ public class ServerGame {
 	 * @param porta
 	 * @return
 	 */
-	private int criaJogadorIndex(InetAddress IP, String nome, int porta) {
-		for (int i = 0; i < enderecosIP.length; i++) {
-			if (enderecosIP[i] == null) {
-				enderecosIP[i] = IP;
-				nomes[i] = nome;
-				portas[i] = porta;
-				System.out.println("Jogador: " + nome + " IP Origem: " + IP);
+	private int CreatePlayerindex(InetAddress IP, String name, int port) {
+		for (int i = 0; i < IPAddress.length; i++) {
+			if (IPAddress[i] == null) {
+				IPAddress[i] = IP;
+				names[i] = name;
+				ports[i] = port;
+				System.out.println("Player: " + name + " joined from: " + IP);
 				return i;
 			}
 		}
@@ -122,11 +122,11 @@ public class ServerGame {
 	 * 
 	 * @param index
 	 */
-	private void removeJogadorIndex(int index) {
-		if (index != -1) {
-			enderecosIP[index] = null;
-			nomes[index] = null;
-			portas[index] = 0;
+	private void RemovePlayerindex(int Index) {
+		if (Index != -1) {
+			IPAddress[Index] = null;
+			names[Index] = null;
+			ports[Index] = 0;
 		}
 	}
 
@@ -137,56 +137,56 @@ public class ServerGame {
 	 * @param nome
 	 * @return
 	 */
-	private int getIndex(InetAddress IP, String nome) {
-		for (int i = 0; i < enderecosIP.length; i++) {
-			if (enderecosIP[i] != null && enderecosIP[i].equals(IP) && nome.equals(nomes[i]))
+	private int GetIndex(InetAddress IP, String name) {
+		for (int i = 0; i < IPAddress.length; i++) {
+			if (IPAddress[i] != null && IPAddress[i].equals(IP) && name.equals(names[i]))
 				return i;
 		}
 		return -1;
 	}
 
 	/**
-	 * Metodo que recebe
+	 * Metodo que recebe um movimento e processa
 	 * 
 	 * @param jogadorIndex
 	 * @param nome
 	 * @param movimento
 	 * @return
 	 */
-	private String processaMovimento(int jogadorIndex, String nome, String movimento) {
-		if (idsNavios[jogadorIndex] == false) {
-			jogo.atribuirNavios(jogadorIndex, movimento);
-			idsNavios[jogadorIndex] = true;
-			return "bom:Ships succesfully placed!";
+	private String processMove(int PlayerIndex, String name, String move) {
+		if (shipIDs[PlayerIndex] == false) {
+			game.assignShips(PlayerIndex, move);
+			shipIDs[PlayerIndex] = true;
+			return "good:Ships succesfully placed!";
 		} else {
-			if (!idsNavios[(jogadorIndex + 1) % 2]) {
-				return "ruim:Esperando outros jogadores colocarem navios";
+			if (!shipIDs[(PlayerIndex + 1) % 2]) {
+				return "bad:Waiting for other player to place ships";
 			}
-			int x = movimento.charAt(0) - 97;
-			int y = movimento.charAt(1) - 48;
-			int resultado = jogo.fazMovimeto(jogadorIndex, x, y);
-			String str;
-			switch (resultado) {
+			int x = move.charAt(0) - 97;
+			int y = move.charAt(1) - 48;
+			int result = game.MakeMove(PlayerIndex, x, y);
+			String out;
+			switch (result) {
 			case -2:
-				str = "ruim:Ainda não é o seu turno!!";
+				out = "bad:It's not your turn right now!!";
 				break;
 			case -1:
-				str = "ruim:Você já atacou este local!";
+				out = "bad:You already attacked this spot!";
 				break;
 			case 0:
-				str = "bom:MISS!!";
+				out = "good:MISS!!";
 				break;
 			case 1:
-				str = "bom:HIT!!";
+				out = "good:HIT!!";
 				break;
 			case 2:
-				str = "vitoria:Você Venceu!!";
+				out = "win:You Win!!";
 				break;
 			default:
-				str = "erro:Erro interno enquanto fazia uma movimento";
+				out = "error:Internal Error while makeing move";
 				break;
 			}
-			return str + '\n' + produzTabuleiro(jogadorIndex);
+			return out + '\n' + ProduceBoard(PlayerIndex);
 		}
 	}
 
@@ -197,27 +197,25 @@ public class ServerGame {
 	 * @param jogadorIndex
 	 * @return
 	 */
-	public String produzTabuleiro(int jogadorIndex) {
-		char[][][] tabuleiros = jogo.getPlayerView(jogadorIndex);
-		String resultado = "Seu tabuleiro: \n";
-		// resultado += "\ta\tb\tc\td\te\tf\tg\th\ti\tj\n";// meu
-		resultado += " abcdefghij\n";
+	public String ProduceBoard(int PlayerIndex) {
+		char[][][] boards = game.getPlayerView(PlayerIndex);
+		String result = "Your board: \n";
+		result += " abcdefghij\n";
 		for (int i = 0; i < 10; i++) {
-			resultado += i;
+			result += i;
 			for (int j = 0; j < 10; j++) {
-				resultado += tabuleiros[0][j][i];
+				result += boards[0][j][i];
 			}
-			resultado += '\n';
+			result += '\n';
 		}
-		// resultado += "tabuleiro inimigo: \n\ta\tb\tc\td\te\tf\tg\th\ti\tj\n";
-		resultado += "tabuleiro inimigo: \nabcdefghij\n";
+		result += "Enemy board: \nabcdefghij\n";
 		for (int i = 0; i < 10; i++) {
-			resultado += i;
+			result += i;
 			for (int j = 0; j < 10; j++) {
-				resultado += tabuleiros[1][j][i];
+				result += boards[1][j][i];
 			}
-			resultado += '\n';
+			result += '\n';
 		}
-		return resultado;
+		return result;
 	}
 }
