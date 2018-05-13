@@ -16,7 +16,7 @@ public class ClientGame {
 	void start() {
 		usuario = CreateName();
 		System.out.println("Usuário é: " + usuario);
-		IO.sendMessage(usuario + ":join");
+		IO.sendMessage(usuario + ":entrar");
 		if (IO.getMessage().equals("Servidor cheio")) {
 			System.out.println("Servidor cheio, tente novamente mais tarde");
 			System.exit(0);

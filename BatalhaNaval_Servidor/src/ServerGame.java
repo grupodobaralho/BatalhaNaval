@@ -46,7 +46,7 @@ public class ServerGame {
 		
 		//Em caso de jogador não registrado no servidor, verifica e cria-se jogador
 		if (jogadorIndex == -1) {
-			if (mensagem.equals("join")) {
+			if (mensagem.equals("entrar")) {
 				jogadorIndex = criaJogadorIndex(pacote.getAddress(), nome, pacote.getPort());
 				if (jogadorIndex == -1) {
 					resultado = "ruim:Servidor cheio";
