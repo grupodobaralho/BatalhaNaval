@@ -17,11 +17,11 @@ public class ClientGame {
 	void start()
 	{
 		username = CreateName();
-		System.out.println("Username is: "+username);
+		System.out.println("Uusario eh: "+username);
 		IO.sendMessage(username+":join");
-		if(IO.getMessage().equals("Server full"))
+		if(IO.getMessage().equals("Servidor cheio"))
 		{
-			System.out.println("Server full, try again later");
+			System.out.println("Servidor cheio, tente novamente mais tarde");
 			System.exit(0);
 		}
 		else
@@ -35,14 +35,14 @@ public class ClientGame {
 	{
 		while(true)
 		{
-			System.out.print("Please enter a user name: ");
+			System.out.print("Por favor digite um nome de usuario: ");
 			try
 			{
 				return inFromUser.readLine();
 			}
 			catch(IOException e)
 			{
-				System.err.println("Error: Invalid text entry");
+				System.err.println("Error: Entrada de texto invalida");
 			}
 		}
 	}
@@ -55,7 +55,7 @@ public class ClientGame {
 			while(activeGame)
 			{
 				IO.sendMessage(username+":"+getLine());
-				System.out.println("sent package. waiting for replay...");
+				System.out.println("Pacote enviado... Aguardando Replay...");
 				ProcessCommand(IO.getMessage());
 			}
 	}
@@ -78,7 +78,7 @@ public class ClientGame {
 			}
 			catch(IOException e)
 			{
-				System.err.println("Error:Invalid text entry");
+				System.err.println("Error: Entrada de texto invalida");
 			}
 			if(command.matches("[a-jA-J]{1}[0-9]{1}"))
 			{
@@ -100,7 +100,7 @@ public class ClientGame {
 		{
 			Arrays.fill(board[i], '-');
 		}
-		System.out.println("Please enter the location of ships you wish to place");
+		System.out.println("Por favor escolha a localizacao dos navios que voce deseja alocar");
 		String[] ships = new String[5];
 		int currentShip = 0;
 		int length = 0;
@@ -109,22 +109,22 @@ public class ClientGame {
 			switch(currentShip)
 			{
 				case 0:
-					System.out.println("Placeing the carrier(5)!"); length = 5; break;
+					System.out.println("Alocando porta-avioes(5)!"); length = 5; break;
 				case 1:
-					System.out.println("Placeing the battleship(4)!"); length = 4; break;
+					System.out.println("Alocando navio-tanque(4)!"); length = 4; break;
 				case 2:
-					System.out.println("Placeing the destoryer(3)!"); length = 3; break;
+					System.out.println("Alocando contratorpedeiros(3)!"); length = 3; break;
 				case 3:
-					System.out.println("Placeing the submarine(3)!"); length = 3; break;
+					System.out.println("Alocando submarinos(3)!"); length = 3; break;
 				case 4:
-					System.out.println("Placeing the patrol boat(2)!"); length = 2; break;
+					System.out.println("Alocando patrulhador(2)!"); length = 2; break;
 			}
 			DisplayShips(board);
-			System.out.println("Enter the first corner of the ship");
+			System.out.println("Informe o primeiro quadrante do navio");
 			String shipLoc = getLine();
 			if(checkLoc(shipLoc, board))
 			{
-				System.out.println("Location invalid, it conflicts with another ship");
+				System.out.println("Local invalido, faz conflito com outro navio");
 				continue;
 			}
 			System.out.println("Enter the last square of the ship's location");
@@ -135,7 +135,7 @@ public class ClientGame {
 				{
 					if(Math.abs(shipLoc.charAt(1) - endLoc.charAt(1)-1) != length)
 					{
-						System.out.println("Location invalid, incorrect length specified");
+						System.out.println("Local invalido, tamanho especificado invalido");
 						continue;
 					}
 					for(int j = 0; j < length-2; j++)
@@ -148,7 +148,7 @@ public class ClientGame {
 				{
 					if(Math.abs(shipLoc.charAt(1) - endLoc.charAt(1)+1) != length)
 					{
-						System.out.println("Location invalid, incorrect length specified");
+						System.out.println("Local invalido, tamanho especificado invalido");
 						continue;
 					}
 					for(int j = 0; j < length-2; j++)
@@ -160,7 +160,7 @@ public class ClientGame {
 				shipLoc += endLoc;
 				if(isColliding(shipLoc, board))
 				{
-					System.out.println("Location invalid, two or more ships are colliding");
+					System.out.println("Local invalido, dois ou mais navios estao colidindo");
 					continue;
 				}
 				ships[currentShip] = shipLoc;
@@ -179,7 +179,7 @@ public class ClientGame {
 				{
 					if(Math.abs(shipLoc.charAt(0) - endLoc.charAt(0)-1) != length)
 					{
-						System.out.println("Location invalid, incorrect length specified");
+						System.out.println("Local invalido, tamanho especificado invalido");
 						continue;
 					}
 					for(int j = 0; j < length-2; j++)
@@ -192,7 +192,7 @@ public class ClientGame {
 				{
 					if(Math.abs(shipLoc.charAt(0) - endLoc.charAt(0)+1) != length)
 					{
-						System.out.println("Location invalid, incorrect length specified");
+						System.out.println("Local invalido, tamanho especificado invalido");
 						continue;
 					}
 					for(int j = 0; j < length-2; j++)
@@ -204,7 +204,7 @@ public class ClientGame {
 				shipLoc += endLoc;
 				if(isColliding(shipLoc, board))
 				{
-					System.out.println("Location invalid, two or more ships are colliding");
+					System.out.println("Local invalido, dois ou mais navios estao colidindo");
 					continue;
 				}
 				ships[currentShip] = shipLoc;
@@ -216,7 +216,7 @@ public class ClientGame {
 				currentShip++;
 				continue;		
 			}
-			System.out.println("Location invalid, ships must be placed in streight lines");
+			System.out.println("Local invalido, navios devem ser posicionados em linha reta");
 		}
 		return ships[0]+ships[1]+ships[2]+ships[3]+ships[4];
 	}

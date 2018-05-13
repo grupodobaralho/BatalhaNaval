@@ -1,6 +1,4 @@
-import java.io.*;
 import java.net.*;
-import java.util.Arrays;
 
 public class ServerGame {
 	ServerNetWorkIO IO; // Classe que faz o tratamento da conexão - Entrada e Saida (IO)
@@ -50,9 +48,9 @@ public class ServerGame {
 			if (message.equals("join")) {
 				PlayerIndex = CreatePlayerindex(packet.getAddress(), name, packet.getPort());
 				if (PlayerIndex == -1) {
-					result = "bad:Server full";
+					result = "bad:Servidor cheio";
 				} else {
-					result = "good:Welcome to the server, " + name + "!";
+					result = "good:Bem vindo ao servidor, " + name + "!";
 				}
 				// Se os dois IPs estiverem registrados, inicia-se o jogo
 				if (!(IPAddress[0] == null) && !(IPAddress[1] == null)) {
@@ -69,7 +67,7 @@ public class ServerGame {
 				IO.sendPacket(new DatagramPacket(result.getBytes(), result.getBytes().length, packet.getAddress(),
 						packet.getPort()));
 				if (IPAddress[(PlayerIndex + 1) % 2] == null) {
-					result = "reset:Server reset, player left";
+					result = "reset:Resetando servidor, jogador saiu";
 					IO.sendPacket(new DatagramPacket(result.getBytes(), result.getBytes().length,
 							IPAddress[(PlayerIndex + 1) % 2], ports[(PlayerIndex + 1) % 2]));
 				}
