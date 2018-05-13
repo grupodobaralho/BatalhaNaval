@@ -1,13 +1,13 @@
 import java.net.*;
 
 public class ServidorJogo {
-	ServidorIO io; // Classe que faz o tratamento da conexão - Entrada e Saida (IO)
+	private ServidorIO io; // Classe que faz o tratamento da conexão - Entrada e Saida (IO)
 	private InetAddress[] iPs; // Vetor de IPs Inet que guarda os ips dos clientes
 	private String[] names; // Guarda o nome dos clientes
 	private int[] portas; // Guarda a porta de acesso aos clientes
 	private BatalhaNaval jogo; // Classe que faz o tratamento do jogo no servidor
-	boolean[] naviosIDs; // boolean que informa se o jogador já alocou os navios
-	boolean jogoAtivo; // Variavel que indica se o jogo está ativo
+	private boolean[] naviosIDs; // boolean que informa se o jogador já alocou os navios
+	private boolean jogoAtivo; // Variavel que indica se o jogo está ativo
 
 	public ServidorJogo(int port) {
 		io = new ServidorIO(port);
@@ -22,7 +22,7 @@ public class ServidorJogo {
 	 * Método principal que controla o recebimento de pacotes e manda processar
 	 * 
 	 */
-	void start() {
+	public void start() {
 		while (true) {
 			System.out.println("Aguardando recebimento de pacotes...");
 			DatagramPacket pacote = io.getPacote();
@@ -105,7 +105,7 @@ public class ServidorJogo {
 	 * @param porta
 	 * @return
 	 */
-	private int criarIndexPlayer(InetAddress IP, String name, int port) {
+	public int criarIndexPlayer(InetAddress IP, String name, int port) {
 		for (int i = 0; i < iPs.length; i++) {
 			if (iPs[i] == null) {
 				iPs[i] = IP;
@@ -123,7 +123,7 @@ public class ServidorJogo {
 	 * 
 	 * @param index
 	 */
-	private void removeIndexPlayer(int Index) {
+	public void removeIndexPlayer(int Index) {
 		if (Index != -1) {
 			iPs[Index] = null;
 			names[Index] = null;
@@ -138,7 +138,7 @@ public class ServidorJogo {
 	 * @param nome
 	 * @return
 	 */
-	private int getIndex(InetAddress IP, String name) {
+	public int getIndex(InetAddress IP, String name) {
 		for (int i = 0; i < iPs.length; i++) {
 			if (iPs[i] != null && iPs[i].equals(IP) && name.equals(names[i]))
 				return i;
@@ -154,7 +154,7 @@ public class ServidorJogo {
 	 * @param movimento
 	 * @return
 	 */
-	private String processMove(int PlayerIndex, String name, String move) {
+	public String processMove(int PlayerIndex, String name, String move) {
 		// Se o usuário ainda nao alocou os navios, aloca!
 		if (naviosIDs[PlayerIndex] == false) {
 			jogo.assignShips(PlayerIndex, move);

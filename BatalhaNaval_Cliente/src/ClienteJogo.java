@@ -3,12 +3,12 @@ import java.net.*;
 import java.util.Arrays;
 
 public class ClienteJogo {
-	ClienteIO io;
-	BufferedReader inUsuario; // Buffered Reader para leitura do input do usuário
-	public String username;
-	boolean jogoAtivo;
+	private ClienteIO io;
+	private BufferedReader inUsuario; // Buffered Reader para leitura do input do usuário
+	private String username;
+	private boolean jogoAtivo;
 
-	ClienteJogo(String address, int port) {
+	public ClienteJogo(String address, int port) {
 		io = new ClienteIO(address, port);
 		inUsuario = new BufferedReader(new InputStreamReader(System.in));
 
@@ -18,7 +18,7 @@ public class ClienteJogo {
 	 * Método que inicia um jogo criando um usuario, informando ao servidor e
 	 * recebendo resposta
 	 */
-	void start() {
+	public void start() {
 		username = CreateName();
 		System.out.println("Usuario eh: " + username);
 		// O nome do usuário é enviado segui o comando join
@@ -41,7 +41,7 @@ public class ClienteJogo {
 	 * Método auxiliar para definição de um nome de usuário
 	 * @return
 	 */
-	private String CreateName() {
+	public String CreateName() {
 		while (true) {
 			System.out.print("Por favor digite um nome de usuario: ");
 			try {
@@ -52,7 +52,7 @@ public class ClienteJogo {
 		}
 	}
 
-	private void startGame() {
+	public void startGame() {
 		jogoAtivo = true;
 		io.sendMensagem(username + ":" + getShips());
 		ProcessCommand(io.getMensagem());
@@ -69,7 +69,7 @@ public class ClienteJogo {
 	 * 
 	 * @return
 	 */
-	private String getLine() {
+	public String getLine() {
 		String command = "";
 		while (true) {
 			try {
@@ -91,7 +91,7 @@ public class ClienteJogo {
 	 * 
 	 * @return
 	 */
-	private String getShips() {
+	public String getShips() {
 		char[][] board = new char[10][10];
 		for (int i = 0; i < 10; i++) {
 			Arrays.fill(board[i], '-');
@@ -204,11 +204,11 @@ public class ClienteJogo {
 		return ships[0] + ships[1] + ships[2] + ships[3] + ships[4];
 	}
 
-	private boolean checkLoc(String Loc, char[][] board) {
+	public boolean checkLoc(String Loc, char[][] board) {
 		return board[Loc.charAt(0) - 97][Loc.charAt(1) - 48] == 'S';
 	}
 
-	private boolean isColliding(String shipLoc, char[][] board) {
+	public boolean isColliding(String shipLoc, char[][] board) {
 		for (int i = 0; i < shipLoc.length(); i += 2) {
 			String loc = shipLoc.substring(i, i + 2);
 			if (checkLoc(loc, board)) {
@@ -218,7 +218,7 @@ public class ClienteJogo {
 		return false;
 	}
 
-	private void DisplayShips(char[][] board) {
+	public void DisplayShips(char[][] board) {
 		String out = " abcdefghij\n";
 		for (int i = 0; i < 10; i++) {
 			out += i;
@@ -230,7 +230,7 @@ public class ClienteJogo {
 		System.out.println(out);
 	}
 
-	private void ProcessCommand(String Command) {
+	public void ProcessCommand(String Command) {
 		String internal = Command.substring(0, Command.indexOf(":"));
 		String external = Command.substring(Command.indexOf(":") + 1, Command.indexOf(0));
 		if (internal.equals("win") || internal.equals("lose") || internal.equals("reset")) {

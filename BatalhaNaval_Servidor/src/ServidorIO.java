@@ -7,7 +7,7 @@ public class ServidorIO {
 	private DatagramPacket pacote;
 	private byte[] dados;
 
-	ServidorIO(int port) {
+	public ServidorIO(int port) {
 		this.porta = port;
 		try {
 			socketServidor = new DatagramSocket(port);

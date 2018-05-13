@@ -9,7 +9,7 @@ public class ClienteIO
 	InetAddress enderecoIpServidor;
 	byte[] dados;
 
-	ClienteIO(String endereco, int porta)
+	public ClienteIO(String endereco, int porta)
 	{
 		this.porta = porta;
 		try
