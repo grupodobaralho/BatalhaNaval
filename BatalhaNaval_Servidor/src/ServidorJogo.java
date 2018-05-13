@@ -1,16 +1,16 @@
 import java.net.*;
 
-public class ServerGame {
-	ServerNetWorkIO IO; // Classe que faz o tratamento da conexão - Entrada e Saida (IO)
+public class ServidorJogo {
+	ServidorIO IO; // Classe que faz o tratamento da conexão - Entrada e Saida (IO)
 	private InetAddress[] IPAddress; // Vetor de IPs Inet que guarda os ips dos clientes
 	private String[] names; // Guarda o nome dos clientes
 	private int ports[]; // Guarda a porta de acesso aos clientes
-	private JShipGame game; // Classe que faz o tratamento do jogo no servidor
+	private BatalhaNaval game; // Classe que faz o tratamento do jogo no servidor
 	boolean shipIDs[]; // boolean que informa se o jogador já alocou os navios
 	boolean activeGame; // Variavel que indica se o jogo está ativo
 
-	public ServerGame(int port) {
-		IO = new ServerNetWorkIO(port);
+	public ServidorJogo(int port) {
+		IO = new ServidorIO(port);
 		IPAddress = new InetAddress[2];
 		names = new String[2];
 		ports = new int[2];
@@ -55,7 +55,7 @@ public class ServerGame {
 				// Se os dois IPs estiverem registrados, inicia-se o jogo
 				if (!(IPAddress[0] == null) && !(IPAddress[1] == null)) {
 					activeGame = true;
-					game = new JShipGame();
+					game = new BatalhaNaval();
 				}
 			}
 

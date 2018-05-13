@@ -3,7 +3,7 @@ import java.net.*;
 import java.util.Arrays;
 import java.util.Scanner;
 
-public class gameClient 
+public class AppCliente 
 {
 	public static void main(String args[]) throws Exception
 	{
@@ -29,7 +29,7 @@ public class gameClient
 //			System.exit(1);
 //		}
 //		ClientGame game = new ClientGame(args[0], port);
-		ClientGame game = new ClientGame(ip, port);
+		ClienteJogo game = new ClienteJogo(ip, port);
 		game.start();
 	}
 

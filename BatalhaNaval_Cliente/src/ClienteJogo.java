@@ -2,14 +2,14 @@ import java.io.*;
 import java.net.*;
 import java.util.Arrays;
 
-public class ClientGame {
-	ClientNetWorkIO IO;
+public class ClienteJogo {
+	ClienteIO IO;
 	BufferedReader inFromUser; //Buffered Reader para leitura do input do usuário
 	public String username;
 	boolean activeGame;
-	ClientGame(String address, int port)
+	ClienteJogo(String address, int port)
 	{
-		IO = new ClientNetWorkIO(address, port);
+		IO = new ClienteIO(address, port);
 		inFromUser = new BufferedReader(new InputStreamReader(System.in));
 
 	}

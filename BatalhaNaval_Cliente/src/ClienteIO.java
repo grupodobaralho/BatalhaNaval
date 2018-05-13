@@ -1,7 +1,7 @@
 import java.io.*;
 import java.net.*;
 
-public class ClientNetWorkIO
+public class ClienteIO
 {
 	DatagramSocket clientSocket;
 	int port;
@@ -9,7 +9,7 @@ public class ClientNetWorkIO
 	InetAddress ServerIPAddress;
 	byte[] Data;
 
-	ClientNetWorkIO(String address, int port)
+	ClienteIO(String address, int port)
 	{
 		this.port = port;
 		try

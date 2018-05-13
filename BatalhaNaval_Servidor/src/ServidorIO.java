@@ -1,13 +1,13 @@
 import java.io.*;
 import java.net.*;
 
-public class ServerNetWorkIO {
+public class ServidorIO {
 	private DatagramSocket serverSocket;
 	private int port;
 	private DatagramPacket Packet;
 	private byte[] Data;
 
-	ServerNetWorkIO(int port) {
+	ServidorIO(int port) {
 		this.port = port;
 		try {
 			serverSocket = new DatagramSocket(port);

@@ -3,7 +3,7 @@ import java.net.*;
 import java.util.Arrays;
 import java.util.Scanner;
 
-public class gameServer 
+public class AppServer 
 {
 	public static void main(String args[]) throws Exception
 	{
@@ -25,7 +25,7 @@ public class gameServer
 //			System.err.println("Error: Argumento não pode ser convertido em inteiro");
 //			System.exit(1);
 //		}
-		ServerGame Server = new ServerGame(port);
+		ServidorJogo Server = new ServidorJogo(port);
 		Server.start();
 	}
 }

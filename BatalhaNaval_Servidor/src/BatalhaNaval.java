@@ -1,6 +1,6 @@
 import java.util.Arrays;
 
-public class JShipGame {
+public class BatalhaNaval {
 	char[][][] PlayerBoards;
 	final static char empty = '-', miss = 'O', hit = 'X', occupied = 'S';
 	int ActivePlayer;
@@ -15,7 +15,7 @@ public class JShipGame {
 		}
 	}
 
-	JShipGame() {
+	BatalhaNaval() {
 		PlayerBoards = new char[2][10][10];
 		for (int i = 0; i < 10; i++) {
 			Arrays.fill(PlayerBoards[0][i], empty);
