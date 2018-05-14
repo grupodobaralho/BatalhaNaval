@@ -48,7 +48,7 @@ public class ClienteIO
 		return new String(pacote.getData());
 	}
 
-	public void sendMensagem(String linha)
+	public void enviaMensagem(String linha)
 	{
 		dados = linha.getBytes();
 		pacote = new DatagramPacket(dados, dados.length, enderecoIpServidor, porta);

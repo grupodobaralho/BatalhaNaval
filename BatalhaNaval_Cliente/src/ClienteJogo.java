@@ -5,11 +5,11 @@ import java.util.Arrays;
 public class ClienteJogo {
 	private ClienteIO io;
 	private BufferedReader inUsuario; // Buffered Reader para leitura do input do usuário
-	private String username;
+	private String usuario;
 	private boolean jogoAtivo;
 
-	public ClienteJogo(String address, int port) {
-		io = new ClienteIO(address, port);
+	public ClienteJogo(String endereco, int porta) {
+		io = new ClienteIO(endereco, porta);
 		inUsuario = new BufferedReader(new InputStreamReader(System.in));
 
 	}
@@ -19,10 +19,10 @@ public class ClienteJogo {
 	 * recebendo resposta
 	 */
 	public void start() {
-		username = CreateName();
-		System.out.println("Usuario eh: " + username);
+		usuario = criaNome();
+		System.out.println("Usuario eh: " + usuario);
 		// O nome do usuário é enviado segui o comando join
-		io.sendMensagem(username + ":join");
+		io.enviaMensagem(usuario + ":join");
 		String mensagem = io.getMensagem();
 		// O servidor retorna com uma mensagem de servidor cheio ou de bem vindo e
 		// inicia o jogo
@@ -31,17 +31,17 @@ public class ClienteJogo {
 			System.exit(0);
 		} else {
 			System.out.println(mensagem);
-			startGame();
+			iniciaJogo();
 		}
 		// Ao termino do jogo, o cliente informa ao servidor o seu nome e o comando quit
-		io.sendMensagem(username + ":quit");
+		io.enviaMensagem(usuario + ":quit");
 	}
 
 	/**
 	 * Método auxiliar para definição de um nome de usuário
 	 * @return
 	 */
-	public String CreateName() {
+	public String criaNome() {
 		while (true) {
 			System.out.print("Por favor digite um nome de usuario: ");
 			try {
@@ -52,14 +52,14 @@ public class ClienteJogo {
 		}
 	}
 
-	public void startGame() {
+	public void iniciaJogo() {
 		jogoAtivo = true;
-		io.sendMensagem(username + ":" + getShips());
-		ProcessCommand(io.getMensagem());
+		io.enviaMensagem(usuario + ":" + getNavios());
+		processaComando(io.getMensagem());
 		while (jogoAtivo) {
-			io.sendMensagem(username + ":" + getLine());
+			io.enviaMensagem(usuario + ":" + pegaLinha());
 			System.out.println("Pacote enviado... Aguardando Replay...");
-			ProcessCommand(io.getMensagem());
+			processaComando(io.getMensagem());
 		}
 	}
 
@@ -69,17 +69,17 @@ public class ClienteJogo {
 	 * 
 	 * @return
 	 */
-	public String getLine() {
-		String command = "";
+	public String pegaLinha() {
+		String comando = "";
 		while (true) {
 			try {
 				System.out.println("Por favor digite uma combinação de letra e número. EX: 'a0'");
-				command = inUsuario.readLine();
+				comando = inUsuario.readLine();
 			} catch (IOException e) {
 				System.err.println("Error: Entrada de texto invalida");
 			}
-			if (command.matches("[a-jA-J]{1}[0-9]{1}")) {
-				return command.toLowerCase();
+			if (comando.matches("[a-jA-J]{1}[0-9]{1}")) {
+				return comando.toLowerCase();
 			}
 			System.out.println("Tente novamente!");
 		}
@@ -91,151 +91,151 @@ public class ClienteJogo {
 	 * 
 	 * @return
 	 */
-	public String getShips() {
-		char[][] board = new char[10][10];
+	public String getNavios() {
+		char[][] tabuleiro = new char[10][10];
 		for (int i = 0; i < 10; i++) {
-			Arrays.fill(board[i], '-');
+			Arrays.fill(tabuleiro[i], '-');
 		}
 		System.out.println("Por favor escolha a localizacao dos navios que voce deseja alocar");
-		String[] ships = new String[5];
-		int currentShip = 0;
-		int length = 0;
-		while (currentShip != 5) {
-			switch (currentShip) {
+		String[] navios = new String[5];
+		int navioAtual = 0;
+		int tamanho = 0;
+		while (navioAtual != 5) {
+			switch (navioAtual) {
 			case 0:
 				System.out.println("Alocando porta-avioes(5)!");
-				length = 5;
+				tamanho = 5;
 				break;
 			case 1:
 				System.out.println("Alocando navio-tanque(4)!");
-				length = 4;
+				tamanho = 4;
 				break;
 			case 2:
 				System.out.println("Alocando contratorpedeiros(3)!");
-				length = 3;
+				tamanho = 3;
 				break;
 			case 3:
 				System.out.println("Alocando submarinos(3)!");
-				length = 3;
+				tamanho = 3;
 				break;
 			case 4:
 				System.out.println("Alocando patrulhador(2)!");
-				length = 2;
+				tamanho = 2;
 				break;
 			}
-			DisplayShips(board);
+			apresentaNavios(tabuleiro);
 			System.out.println("Informe o primeiro quadrante do navio");
-			String shipLoc = getLine();
-			if (checkLoc(shipLoc, board)) {
+			String navioLoc = pegaLinha();
+			if (verificaLoc(navioLoc, tabuleiro)) {
 				System.out.println("Local invalido, faz conflito com outro navio");
 				continue;
 			}
 			System.out.println("Informe o ultimo quadrante da localizacao do navio");
-			String endLoc = getLine();
-			if (shipLoc.charAt(0) == endLoc.charAt(0)) {
-				if (shipLoc.charAt(1) - endLoc.charAt(1) < 0) {
-					if (Math.abs(shipLoc.charAt(1) - endLoc.charAt(1) - 1) != length) {
+			String finalLoc = pegaLinha();
+			if (navioLoc.charAt(0) == finalLoc.charAt(0)) {
+				if (navioLoc.charAt(1) - finalLoc.charAt(1) < 0) {
+					if (Math.abs(navioLoc.charAt(1) - finalLoc.charAt(1) - 1) != tamanho) {
 						System.out.println("Local invalido, tamanho especificado invalido");
 						continue;
 					}
-					for (int j = 0; j < length - 2; j++) {
-						shipLoc += shipLoc.charAt(0);
-						shipLoc += (char) (shipLoc.charAt(1) + j + 1);
+					for (int j = 0; j < tamanho - 2; j++) {
+						navioLoc += navioLoc.charAt(0);
+						navioLoc += (char) (navioLoc.charAt(1) + j + 1);
 					}
 				} else {
-					if (Math.abs(shipLoc.charAt(1) - endLoc.charAt(1) + 1) != length) {
+					if (Math.abs(navioLoc.charAt(1) - finalLoc.charAt(1) + 1) != tamanho) {
 						System.out.println("Local invalido, tamanho especificado invalido");
 						continue;
 					}
-					for (int j = 0; j < length - 2; j++) {
-						shipLoc += shipLoc.charAt(0);
-						shipLoc += (char) (endLoc.charAt(1) + j + 1);
+					for (int j = 0; j < tamanho - 2; j++) {
+						navioLoc += navioLoc.charAt(0);
+						navioLoc += (char) (finalLoc.charAt(1) + j + 1);
 					}
 				}
-				shipLoc += endLoc;
-				if (isColliding(shipLoc, board)) {
+				navioLoc += finalLoc;
+				if (isColliding(navioLoc, tabuleiro)) {
 					System.out.println("Local invalido, dois ou mais navios estao colidindo");
 					continue;
 				}
-				ships[currentShip] = shipLoc;
-				for (int i = 0; i < shipLoc.length(); i += 2) {
-					String loc = shipLoc.substring(i, i + 2);
-					board[loc.charAt(0) - 97][loc.charAt(1) - 48] = 'S';
+				navios[navioAtual] = navioLoc;
+				for (int i = 0; i < navioLoc.length(); i += 2) {
+					String loc = navioLoc.substring(i, i + 2);
+					tabuleiro[loc.charAt(0) - 97][loc.charAt(1) - 48] = 'S';
 				}
-				currentShip++;
+				navioAtual++;
 				continue;
 
 			}
-			if (shipLoc.charAt(1) == endLoc.charAt(1)) {
-				if (shipLoc.charAt(0) - endLoc.charAt(0) < 0) {
-					if (Math.abs(shipLoc.charAt(0) - endLoc.charAt(0) - 1) != length) {
+			if (navioLoc.charAt(1) == finalLoc.charAt(1)) {
+				if (navioLoc.charAt(0) - finalLoc.charAt(0) < 0) {
+					if (Math.abs(navioLoc.charAt(0) - finalLoc.charAt(0) - 1) != tamanho) {
 						System.out.println("Local invalido, tamanho especificado invalido");
 						continue;
 					}
-					for (int j = 0; j < length - 2; j++) {
-						shipLoc += (char) (shipLoc.charAt(0) + j + 1);
-						shipLoc += shipLoc.charAt(1);
+					for (int j = 0; j < tamanho - 2; j++) {
+						navioLoc += (char) (navioLoc.charAt(0) + j + 1);
+						navioLoc += navioLoc.charAt(1);
 					}
 				} else {
-					if (Math.abs(shipLoc.charAt(0) - endLoc.charAt(0) + 1) != length) {
+					if (Math.abs(navioLoc.charAt(0) - finalLoc.charAt(0) + 1) != tamanho) {
 						System.out.println("Local invalido, tamanho especificado invalido");
 						continue;
 					}
-					for (int j = 0; j < length - 2; j++) {
-						shipLoc += (char) (endLoc.charAt(0) + j + 1);
-						shipLoc += shipLoc.charAt(1);
+					for (int j = 0; j < tamanho - 2; j++) {
+						navioLoc += (char) (finalLoc.charAt(0) + j + 1);
+						navioLoc += navioLoc.charAt(1);
 					}
 				}
-				shipLoc += endLoc;
-				if (isColliding(shipLoc, board)) {
+				navioLoc += finalLoc;
+				if (isColliding(navioLoc, tabuleiro)) {
 					System.out.println("Local invalido, dois ou mais navios estao colidindo");
 					continue;
 				}
-				ships[currentShip] = shipLoc;
-				for (int i = 0; i < shipLoc.length(); i += 2) {
-					String loc = shipLoc.substring(i, i + 2);
-					board[loc.charAt(0) - 97][loc.charAt(1) - 48] = 'S';
+				navios[navioAtual] = navioLoc;
+				for (int i = 0; i < navioLoc.length(); i += 2) {
+					String loc = navioLoc.substring(i, i + 2);
+					tabuleiro[loc.charAt(0) - 97][loc.charAt(1) - 48] = 'S';
 				}
-				currentShip++;
+				navioAtual++;
 				continue;
 			}
 			System.out.println("Local invalido, navios devem ser posicionados em linha reta");
 		}
-		return ships[0] + ships[1] + ships[2] + ships[3] + ships[4];
+		return navios[0] + navios[1] + navios[2] + navios[3] + navios[4];
 	}
 
-	public boolean checkLoc(String Loc, char[][] board) {
-		return board[Loc.charAt(0) - 97][Loc.charAt(1) - 48] == 'S';
+	public boolean verificaLoc(String Loc, char[][] tabuleiro) {
+		return tabuleiro[Loc.charAt(0) - 97][Loc.charAt(1) - 48] == 'S';
 	}
 
-	public boolean isColliding(String shipLoc, char[][] board) {
-		for (int i = 0; i < shipLoc.length(); i += 2) {
-			String loc = shipLoc.substring(i, i + 2);
-			if (checkLoc(loc, board)) {
+	public boolean isColliding(String navioLoc, char[][] tabuleiro) {
+		for (int i = 0; i < navioLoc.length(); i += 2) {
+			String loc = navioLoc.substring(i, i + 2);
+			if (verificaLoc(loc, tabuleiro)) {
 				return true;
 			}
 		}
 		return false;
 	}
 
-	public void DisplayShips(char[][] board) {
+	public void apresentaNavios(char[][] tabuleiro) {
 		String out = " abcdefghij\n";
 		for (int i = 0; i < 10; i++) {
 			out += i;
 			for (int j = 0; j < 10; j++) {
-				out += board[j][i];
+				out += tabuleiro[j][i];
 			}
 			out += '\n';
 		}
 		System.out.println(out);
 	}
 
-	public void ProcessCommand(String Command) {
-		String internal = Command.substring(0, Command.indexOf(":"));
-		String external = Command.substring(Command.indexOf(":") + 1, Command.indexOf(0));
-		if (internal.equals("win") || internal.equals("lose") || internal.equals("reset")) {
+	public void processaComando(String comando) {
+		String interno = comando.substring(0, comando.indexOf(":"));
+		String externo = comando.substring(comando.indexOf(":") + 1, comando.indexOf(0));
+		if (interno.equals("win") || interno.equals("lose") || interno.equals("reset")) {
 			jogoAtivo = false;
 		}
-		System.out.println(external);
+		System.out.println(externo);
 	}
 }

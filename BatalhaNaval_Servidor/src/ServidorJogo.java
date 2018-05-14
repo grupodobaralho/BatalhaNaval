@@ -204,24 +204,24 @@ public class ServidorJogo {
 	 * @return
 	 */
 	public String fazTabuleiro(int indexJogador) {
-		char[][][] boards = jogo.getVisaoJogador(indexJogador);
-		String result = "Seu tabuleiro: \n";
-		result += " abcdefghij\n";
+		char[][][] tabuleiros = jogo.getVisaoJogador(indexJogador);
+		String resultado = "Seu tabuleiro: \n";
+		resultado += " abcdefghij\n";
 		for (int i = 0; i < 10; i++) {
-			result += i;
+			resultado += i;
 			for (int j = 0; j < 10; j++) {
-				result += boards[0][j][i];
+				resultado += tabuleiros[0][j][i];
 			}
-			result += '\n';
+			resultado += '\n';
 		}
-		result += "Tabuleiro inimigo: \nabcdefghij\n";
+		resultado += "Tabuleiro inimigo: \nabcdefghij\n";
 		for (int i = 0; i < 10; i++) {
-			result += i;
+			resultado += i;
 			for (int j = 0; j < 10; j++) {
-				result += boards[1][j][i];
+				resultado += tabuleiros[1][j][i];
 			}
-			result += '\n';
+			resultado += '\n';
 		}
-		return result;
+		return resultado;
 	}
 }
