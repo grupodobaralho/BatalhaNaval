@@ -4,7 +4,7 @@ import java.util.Scanner;
  * Classe que implementa o método main. Recupera informações de IP e porta do
  * jogador e inicia jogo enviando as informações por parâmetro.
  * 
- * @author Israelmp
+ * @author Israel Deorce
  *
  */
 public class AppCliente {

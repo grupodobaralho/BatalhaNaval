@@ -1,6 +1,13 @@
 import java.io.*;
 import java.net.*;
 
+/**
+ * Classe que é responsavel por fazer a gestão de entrada e saída de dados via
+ * Socket Datagrama (UDP) pelo lado do cliente.
+ * 
+ * @author Israel Deorce
+ *
+ */
 public class ClienteIO {
 	DatagramSocket clienteSocket; // Socket UDP
 	DatagramPacket pacote; // Gera um pacote de Datagrama para envio
@@ -34,8 +41,9 @@ public class ClienteIO {
 	}
 
 	/**
-	 * Método que prepara pacote para receber dados UDP vindos do Servidor.
-	 * É chamado sempre que necessário pelo ClienteJogo
+	 * Método que prepara pacote para receber dados UDP vindos do Servidor. É
+	 * chamado sempre que necessário pelo ClienteJogo
+	 * 
 	 * @return
 	 */
 	public String getMensagem() {
@@ -51,9 +59,10 @@ public class ClienteIO {
 	}
 
 	/**
-	 * Método que recebe informações em formato String, converte para bytes,
-	 * prepara pacote e envia dados via UDP para o Servidor.
-	 * É chamado sempre que necessário pelo ClienteJogo
+	 * Método que recebe informações em formato String, converte para bytes, prepara
+	 * pacote e envia dados via UDP para o Servidor. É chamado sempre que necessário
+	 * pelo ClienteJogo
+	 * 
 	 * @return
 	 */
 	public void enviaMensagem(String linha) {

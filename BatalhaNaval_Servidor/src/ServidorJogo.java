@@ -1,5 +1,13 @@
 import java.net.*;
 
+/**
+ * Classe que administra o Jogo do lado do servidor. Esta classe utiliza o
+ * ServidorIO para mandar e receber dados via Socket, o BatalhaNaval para
+ * persistir os dados do jogo, e armazena as informações dos jogadores.
+ * 
+ * @author Israel Deorce
+ *
+ */
 public class ServidorJogo {
 	private ServidorIO io; // Classe que faz o tratamento da conexão - Entrada e Saida (IO)
 
@@ -10,8 +18,11 @@ public class ServidorJogo {
 	private boolean[] naviosIDs; // boolean que informa se o jogador já alocou os navios
 
 	private BatalhaNaval jogo; // Classe que faz o tratamento do jogo no servidor
-	private boolean jogoAtivo; // Variavel que indica se o jogo está ativo
+	private boolean jogoAtivo; // Variavel que indica se o jogo está ativo (dois jogadores registados)
 
+	/**
+	 * Construtor que inicializa os atributos da classe
+	 */
 	public ServidorJogo(int porta) {
 		io = new ServidorIO(porta);
 		iPs = new InetAddress[2];
@@ -36,16 +47,25 @@ public class ServidorJogo {
 	}
 
 	/**
+	 * Método que recebe um pacote de Datagrama e processa as informações
 	 * 
 	 * @param pacote
 	 */
 	public void processaInput(DatagramPacket pacote) {
+		// Pega dados e decompoe em nome (inf. cliente) e mensagem
 		String mensagemPacote = new String(pacote.getData());
 		String nome = mensagemPacote.substring(0, mensagemPacote.indexOf(':'));
 		String mensagem = mensagemPacote.substring(mensagemPacote.indexOf(':') + 1, mensagemPacote.indexOf(0));
+
+		System.out.println("Servidor processou input nome: " + nome + " e mensagem: " + mensagem);
+
+		// transforma nome em index
 		int indexJogador = getIndex(pacote.getAddress(), nome);
+
+		// inicializa string que seria enviada ao cliente como dados
 		String resultado = "";
-		// Em caso de jogador não registrado no servidor, verifica e cria-se jogador
+
+		// Em caso de jogador não registrado no servidor, verifica e registra jogador
 		if (indexJogador == -1) {
 			if (mensagem.equals("join")) {
 				indexJogador = criarIndexJogador(pacote.getAddress(), nome, pacote.getPort());
@@ -74,12 +94,15 @@ public class ServidorJogo {
 							iPs[(indexJogador + 1) % 2], portas[(indexJogador + 1) % 2]));
 				}
 				return;
-			} else {
+			} else { // Caso o jogo ainda não esteja ativo, informa ao usuario, ou então processa a
+						// mensagem do usuário e envia resultado
 				if (!jogoAtivo) {
 					resultado = "bad:Aguardando jogadores adicionais...";
 				} else {
-					resultado = processaAcao(indexJogador, nome, mensagem);
+					// A mensagem pode ser para alocar navios ou para dar um palpite
+					resultado = processaMensagem(indexJogador, nome, mensagem);
 				}
+				// se for vitoria ou derrota atualiza resultado e finaliza o jogo
 				if (resultado.substring(0, resultado.indexOf(":")).equals("win")) {
 					String out = "lose:Voce perdeu!!";
 					io.enviaPacote(new DatagramPacket(out.getBytes(), out.getBytes().length,
@@ -92,6 +115,9 @@ public class ServidorJogo {
 				}
 			}
 		}
+
+		// Ao final do processo, constroi e envia um novo pacote de Datagrama passando o
+		// endereço e a porta do cliente disponivel no pacote
 		io.enviaPacote(new DatagramPacket(resultado.getBytes(), resultado.getBytes().length, pacote.getAddress(),
 				pacote.getPort()));
 	}
@@ -131,7 +157,8 @@ public class ServidorJogo {
 	}
 
 	/**
-	 * Método que retorna index de um jogador especifico a partir do seu IP e nome
+	 * Método que retorna index de um jogador especifico a partir do seu IP e nome,
+	 * ou -1 em caso de jogador não encontrado
 	 * 
 	 * @param ip
 	 * @param nome
@@ -146,17 +173,17 @@ public class ServidorJogo {
 	}
 
 	/**
-	 * Metodo que recebe um movimento e processa
+	 * Metodo que recebe uma mensagem e processa
 	 * 
 	 * @param jogadorIndex
 	 * @param nome
-	 * @param acao
+	 * @param mensagem
 	 * @return
 	 */
-	public String processaAcao(int indexJogador, String nome, String acao) {
+	public String processaMensagem(int indexJogador, String nome, String mensagem) {
 		// Se o usuário ainda nao alocou os navios, aloca!
 		if (naviosIDs[indexJogador] == false) {
-			jogo.atribuiNavios(indexJogador, acao);
+			jogo.atribuiNavios(indexJogador, mensagem);
 			naviosIDs[indexJogador] = true;
 			return "good:Navios alocados com sucesso!";
 		} else {
@@ -167,9 +194,9 @@ public class ServidorJogo {
 			}
 
 			// Converte as coordenadas do usuario para a posicao correta no plano
-			System.out.println(acao);
-			int x = acao.charAt(0) - 97; // 97 eh codigo para a letra a
-			int y = acao.charAt(1) - 48; //
+			System.out.println(mensagem);
+			int x = mensagem.charAt(0) - 97; // 97 eh codigo para a letra a
+			int y = mensagem.charAt(1) - 48; // 48 é para 0
 
 			// Chama funcao que busca o resultado de um movimento enviando o jogador
 			// e a posicao correspondente no plano

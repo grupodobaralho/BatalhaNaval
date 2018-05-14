@@ -2,6 +2,14 @@ import java.io.*;
 import java.net.*;
 import java.util.Arrays;
 
+/**
+ * Classe que administra o Jogo do lado do Cliente. Esta classe utiliza o
+ * ClienteIO para mandar e receber dados via Socket, armazena e apresenta as
+ * informações recebidas do servidor referentes ao jogo.
+ * 
+ * @author Israel Deorce
+ *
+ */
 public class ClienteJogo {
 	private ClienteIO io; // Variavel de referencia para a classe que administra Entrada e Saida
 	private BufferedReader inUsuario; // Buffered Reader para leitura do input do usuário

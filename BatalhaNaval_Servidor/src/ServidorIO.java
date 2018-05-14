@@ -1,6 +1,12 @@
 import java.io.*;
 import java.net.*;
-
+/**
+ * Classe que é responsavel por fazer a gestão de entrada e saída de dados via
+ * Socket Datagrama (UDP) pelo lado do cliente.
+ * 
+ * @author Israel Deorce
+ *
+ */
 public class ServidorIO {
 	private DatagramSocket socketServidor; // Socket UDP
 	private DatagramPacket pacote; // Gera um pacote de Datagrama para envio
