@@ -1,8 +1,9 @@
 import java.util.Scanner;
 
 /**
- * Classe que implementa o método main. Recupera informações porta do
- * administrador e inicia jogo enviando as informações por parâmetro.
+ * AppServer: Classe que implementa o método main(), pede informações de porta
+ * do servidor ao administrador e inicia jogo enviando as informações por
+ * parâmetro.
  * 
  * @author Israel Deorce
  *

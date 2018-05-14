@@ -38,7 +38,7 @@ public class ServidorJogo {
 	 */
 	public void start() {
 		while (true) {
-			System.out.println("Aguardando recebimento de pacotes...");
+			System.out.println("Aguardando recebimento de pacote...");
 			DatagramPacket pacote = io.getPacote();
 			if (pacote != null) {
 				processaInput(pacote);

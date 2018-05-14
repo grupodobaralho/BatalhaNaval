@@ -2,7 +2,7 @@ import java.io.*;
 import java.net.*;
 /**
  * Classe que é responsavel por fazer a gestão de entrada e saída de dados via
- * Socket Datagrama (UDP) pelo lado do cliente.
+ * Socket Datagrama (UDP) pelo lado do servidor.
  * 
  * @author Israel Deorce
  *
