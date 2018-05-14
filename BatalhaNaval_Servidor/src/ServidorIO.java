@@ -2,11 +2,20 @@ import java.io.*;
 import java.net.*;
 
 public class ServidorIO {
-	private DatagramSocket socketServidor;
-	private int porta;
-	private DatagramPacket pacote;
-	private byte[] dados;
+	private DatagramSocket socketServidor; // Socket UDP
+	private DatagramPacket pacote; // Gera um pacote de Datagrama para envio
 
+	private int porta;
+
+	private byte[] dados; // array de bytes que carrega os dados
+
+	/**
+	 * Construtor que recebe a porta do Servidor, armazena localmente e seta como
+	 * porta do socket DatagramaUDP
+	 * 
+	 * 
+	 * @param porta
+	 */
 	public ServidorIO(int porta) {
 		this.porta = porta;
 		try {
@@ -17,6 +26,11 @@ public class ServidorIO {
 		}
 	}
 
+	/**
+	 * Cria um pacote e aloca espaço para receber dados do cliente e retorna
+	 * 
+	 * @return
+	 */
 	public DatagramPacket getPacote() {
 		dados = new byte[1024];
 		pacote = new DatagramPacket(dados, dados.length);
@@ -29,6 +43,11 @@ public class ServidorIO {
 		return pacote;
 	}
 
+	/**
+	 * Recebe um pacote de datagrama pronto e envia para o cliente via socket
+	 * 
+	 * @param pacote
+	 */
 	public void enviaPacote(DatagramPacket pacote) {
 		try {
 			socketServidor.send(pacote);

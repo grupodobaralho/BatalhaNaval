@@ -2,15 +2,18 @@ import java.net.*;
 
 public class ServidorJogo {
 	private ServidorIO io; // Classe que faz o tratamento da conexão - Entrada e Saida (IO)
+
+	// Atributos do Jogador
 	private InetAddress[] iPs; // Vetor de IPs Inet que guarda os ips dos clientes
 	private String[] nomes; // Guarda o nome dos clientes
 	private int[] portas; // Guarda a porta de acesso aos clientes
-	private BatalhaNaval jogo; // Classe que faz o tratamento do jogo no servidor
 	private boolean[] naviosIDs; // boolean que informa se o jogador já alocou os navios
+
+	private BatalhaNaval jogo; // Classe que faz o tratamento do jogo no servidor
 	private boolean jogoAtivo; // Variavel que indica se o jogo está ativo
 
-	public ServidorJogo(int port) {
-		io = new ServidorIO(port);
+	public ServidorJogo(int porta) {
+		io = new ServidorIO(porta);
 		iPs = new InetAddress[2];
 		nomes = new String[2];
 		portas = new int[2];
@@ -63,8 +66,8 @@ public class ServidorJogo {
 				removeIndexJogador(indexJogador);
 				jogoAtivo = false;
 				naviosIDs = new boolean[] { false, false };
-				io.enviaPacote(new DatagramPacket(resultado.getBytes(), resultado.getBytes().length, pacote.getAddress(),
-						pacote.getPort()));
+				io.enviaPacote(new DatagramPacket(resultado.getBytes(), resultado.getBytes().length,
+						pacote.getAddress(), pacote.getPort()));
 				if (iPs[(indexJogador + 1) % 2] == null) {
 					resultado = "reset:Resetando servidor, jogador saiu";
 					io.enviaPacote(new DatagramPacket(resultado.getBytes(), resultado.getBytes().length,
@@ -89,8 +92,8 @@ public class ServidorJogo {
 				}
 			}
 		}
-		io.enviaPacote(
-				new DatagramPacket(resultado.getBytes(), resultado.getBytes().length, pacote.getAddress(), pacote.getPort()));
+		io.enviaPacote(new DatagramPacket(resultado.getBytes(), resultado.getBytes().length, pacote.getAddress(),
+				pacote.getPort()));
 	}
 
 	/**
@@ -157,17 +160,17 @@ public class ServidorJogo {
 			naviosIDs[indexJogador] = true;
 			return "good:Navios alocados com sucesso!";
 		} else {
-			
+
 			// Se o outro jogador ainda nao alocou o navio, mantem standby
 			if (!naviosIDs[(indexJogador + 1) % 2]) {
 				return "bad:Aguardando outros jogadores alocarem seus navios";
 			}
-			
+
 			// Converte as coordenadas do usuario para a posicao correta no plano
 			System.out.println(acao);
-			int x = acao.charAt(0) - 97; //97 eh codigo para a letra a
+			int x = acao.charAt(0) - 97; // 97 eh codigo para a letra a
 			int y = acao.charAt(1) - 48; //
-			
+
 			// Chama funcao que busca o resultado de um movimento enviando o jogador
 			// e a posicao correspondente no plano
 			int result = jogo.fazMovimento(indexJogador, x, y);
