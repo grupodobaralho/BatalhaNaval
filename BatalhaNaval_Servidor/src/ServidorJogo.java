@@ -42,17 +42,14 @@ public class ServidorJogo {
 		String mensagem = mensagemPacote.substring(mensagemPacote.indexOf(':') + 1, mensagemPacote.indexOf(0));
 		int indexJogador = getIndex(pacote.getAddress(), nome);
 		String resultado = "";
-		System.out.println("mensagem é1: " + mensagem);
 		// Em caso de jogador não registrado no servidor, verifica e cria-se jogador
 		if (indexJogador == -1) {
-			System.out.println("mensagem é2: " + mensagem);
 			if (mensagem.equals("join")) {
 				indexJogador = criarIndexPlayer(pacote.getAddress(), nome, pacote.getPort());
 				if (indexJogador == -1) {
 					resultado = "bad:Servidor cheio";
 				} else {
 					resultado = "good:Bem vindo ao servidor, " + nome + "!";
-					System.out.println("mensagem é2.5: " + mensagem);
 				}
 				// Se os dois IPs estiverem registrados, inicia-se o jogo
 				if (!(iPs[0] == null) && !(iPs[1] == null)) {
@@ -63,7 +60,6 @@ public class ServidorJogo {
 
 		} else { // Caso um jogador saia
 			if (mensagem.equals("quit") && indexJogador != -1) {
-				System.out.println("mensagem é3: " + mensagem);
 				removeIndexPlayer(indexJogador);
 				jogoAtivo = false;
 				naviosIDs = new boolean[] { false, false };
@@ -157,7 +153,7 @@ public class ServidorJogo {
 	public String processMove(int PlayerIndex, String name, String move) {
 		// Se o usuário ainda nao alocou os navios, aloca!
 		if (naviosIDs[PlayerIndex] == false) {
-			jogo.assignShips(PlayerIndex, move);
+			jogo.atribuiNavios(PlayerIndex, move);
 			naviosIDs[PlayerIndex] = true;
 			return "good:Navios alocados com sucesso!";
 		} else {
@@ -174,7 +170,7 @@ public class ServidorJogo {
 			
 			// Chama funcao que busca o resultado de um movimento enviando o jogador
 			// e a posicao correspondente no plano
-			int result = jogo.MakeMove(PlayerIndex, x, y);
+			int result = jogo.fazMovimento(PlayerIndex, x, y);
 			String out;
 			switch (result) {
 			case -2:
