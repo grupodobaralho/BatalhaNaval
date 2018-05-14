@@ -7,10 +7,10 @@ public class ServidorIO {
 	private DatagramPacket pacote;
 	private byte[] dados;
 
-	public ServidorIO(int port) {
-		this.porta = port;
+	public ServidorIO(int porta) {
+		this.porta = porta;
 		try {
-			socketServidor = new DatagramSocket(port);
+			socketServidor = new DatagramSocket(porta);
 		} catch (SocketException e) {
 			System.err.println("Error: Socket nao pode ser criado");
 			System.exit(1);

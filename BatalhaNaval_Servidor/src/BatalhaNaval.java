@@ -81,7 +81,7 @@ public class BatalhaNaval {
 		return venceu;
 	}
 
-	public char[][] ConvertToEnemyView(char[][] tabuleiro) {
+	public char[][] converterVisaoInimigo(char[][] tabuleiro) {
 		char[][] interno = new char[10][10];
 		for (int i = 0; i < 10; i++) {
 			interno[i] = (char[]) tabuleiro[i].clone();
@@ -96,10 +96,10 @@ public class BatalhaNaval {
 		return interno;
 	}
 
-	public char[][][] getPlayerView(int indexJogador) {
+	public char[][][] getVisaoJogador(int indexJogador) {
 		char[][][] resultados = new char[2][10][10];
 		resultados[0] = tabuleirosJogadores[indexJogador];
-		resultados[1] = ConvertToEnemyView(tabuleirosJogadores[(indexJogador + 1) % 2]);
+		resultados[1] = converterVisaoInimigo(tabuleirosJogadores[(indexJogador + 1) % 2]);
 		return resultados;
 	}
 }
